@@ -1,5 +1,5 @@
 blueprint:
-  name: Frigate Notifications (0.15.0.2)
+  name: Frigate Notifications (0.15.0.3)
   author: SgtBatten
   homeassistant:
     min_version: 2024.11.0
@@ -1259,13 +1259,52 @@ variables:
   redacted: !input redacted
   master_condition: !input master_condition
   # Dynamic Variables per event
-  severity_satisfied: "{{input_severity|select('in', severity)|list|length > 0 if trigger.id in ['frigate-event', 'genai-final']}}"
-  objects: "{{ trigger.payload_json['after']['data']['objects'] if trigger.id in ['frigate-event', 'genai-final'] }}"
+  severity: >
+    {% if trigger.id in ['frigate-event', 'genai-final'] %}
+      {{ trigger.payload_json['after']['severity'] | default([]) }}
+    {% elif trigger.id == 'genai-sprinter' %}
+      {{ trigger.payload_json.get('severity', trigger.payload_json.get('review_severity', [])) }}
+    {% else %}
+      {{ [] }}
+    {% endif %}
+  severity_satisfied: >
+    {% if not input_severity | length %}
+      {{ true }}
+    {% elif trigger.id in ['frigate-event', 'genai-final'] %}
+      {{ input_severity | select('in', severity) | list | length > 0 }}
+    {% elif trigger.id == 'genai-sprinter' %}
+      {% set sprinter_severity = severity if severity is sequence and severity is not string else [severity] if severity not in [none, '', []] else [] %}
+      {{ sprinter_severity | length == 0 or input_severity | select('in', sprinter_severity) | list | length > 0 }}
+    {% else %}
+      {{ false }}
+    {% endif %}
+  objects: >
+    {% if trigger.id in ['frigate-event', 'genai-final'] %}
+      {{ trigger.payload_json['after']['data']['objects'] | default([]) }}
+    {% elif trigger.id == 'genai-sprinter' %}
+      {{ trigger.payload_json.get('objects', [trigger.payload_json.get('label')]) | reject('equalto', none) | list }}
+    {% else %}
+      {{ [] }}
+    {% endif %}
   objects_satisfied: "{{ not labels|length or labels|select('in', objects)|list|length > 0 or ('person-verified' in objects and 'person' in labels) }}"
   initial_home: "{{ presence_entity != '' and presence_entity|expand|selectattr('state','eq','home')|list|length != 0 }}"
   state_satisfied: "{{ not state_only or states(input_entity)|lower in states_filter }}"
-  before_zones: "{{ trigger.payload_json['before']['data']['zones'] | list | lower if trigger.id in ['frigate-event', 'genai-final'] }}"
-  after_zones: "{{ trigger.payload_json['after']['data']['zones'] | list | lower if trigger.id in ['frigate-event', 'genai-final'] }}"
+  before_zones: >
+    {% if trigger.id in ['frigate-event', 'genai-final'] %}
+      {{ trigger.payload_json['before']['data']['zones'] | default([]) | list | lower }}
+    {% elif trigger.id == 'genai-sprinter' %}
+      {{ trigger.payload_json.get('before_zones', []) | list | lower }}
+    {% else %}
+      {{ [] }}
+    {% endif %}
+  after_zones: >
+    {% if trigger.id in ['frigate-event', 'genai-final'] %}
+      {{ trigger.payload_json['after']['data']['zones'] | default([]) | list | lower }}
+    {% elif trigger.id == 'genai-sprinter' %}
+      {{ trigger.payload_json.get('current_zones', trigger.payload_json.get('entered_zones', trigger.payload_json.get('zones', []))) | list | lower }}
+    {% else %}
+      {{ [] }}
+    {% endif %}
   zone_multi_filter: "{{zone_only and zone_multi and after_zones|length and zones and zones |reject('in', after_zones) |list |length == 0 }}"
   filters_satisfied: "{{ severity_satisfied and objects_satisfied and not initial_home and state_satisfied and custom_filter }}"
   any_zones_entered: "{{ zones | length == 0 or ((zones | select('in', after_zones) | list | length) > 0) }}"
@@ -1302,8 +1341,22 @@ conditions:
         - alias: Camera Match
           condition: template
           value_template: "{{ input_camera_name|select('equalto', camera)|list|length>0 }}"
+        - alias: Shared Filters
+          condition: template
+          value_template: "{{ filters_satisfied }}"
+        - alias: Zone Filter
+          condition: template
+          value_template: "{{ zones_satisfied }}"
         - alias: Master Condition
           condition: !input master_condition
+        - alias: Cooldown
+          condition: template
+          value_template: >
+            {{ not this.attributes.last_triggered or
+            (now() - this.attributes.last_triggered).seconds > cooldown }}
+        - alias: Disable Times
+          condition: template
+          value_template: "{{ not disable_times|length or not now().hour in disable_times|map('int')|list }}"
     - condition: and
       conditions:
         - condition: trigger
@@ -1354,9 +1407,6 @@ actions:
         conditions:
           - condition: trigger
             id: genai-sprinter
-          - "{{ genai_sprinter }}"
-          - "{{ type == 'description' }}"
-          - "{{ input_camera_name|select('equalto', camera)|list|length>0 }}"
         sequence:
           - variables:
               id: "{{ trigger.payload_json['id'] }}"
@@ -1726,14 +1776,12 @@ actions:
                             data:
                               tag: "{{ tag }}"
                               group: "{{ group }}"
-                              color: "{{color}}"
                               subject: "{{subtitle}}"
                               image: "{{attachment}}"
                               clickAction: "{{tap_action_android}}"
                               ttl: 0
                               priority: high
                               alert_once: "{{ alert_once }}"
-                              notification_icon: "{{icon}}"
                               sticky: "{{sticky}}"
                               channel: "{{'alarm_stream' if critical else channel}}"
                               car_ui: "{{android_auto}}"
@@ -1774,13 +1822,11 @@ actions:
                               data:
                                 tag: "{{ tag }}"
                                 group: "{{ group }}"
-                                color: "{{color}}"
                                 subject: "{{subtitle}}"
                                 clickAction: "{{tap_action_android}}"
                                 ttl: 0
                                 priority: high
                                 alert_once: "{{ alert_once }}"
-                                notification_icon: "{{icon}}"
                                 sticky: "{{sticky}}"
                                 channel: "{{'alarm_stream' if critical else channel}}"
                                 car_ui: "{{android_auto}}"
@@ -1828,14 +1874,12 @@ actions:
                           data:
                             tag: "{{ tag }}"
                             group: "{{ group }}"
-                            color: "{{color}}"
                             subject: "{{subtitle}}"
                             image: "{{attachment}}"
                             clickAction: "{{tap_action_android}}"
                             ttl: 0
                             priority: high
                             alert_once: "{{ alert_once }}"
-                            notification_icon: "{{icon}}"
                             sticky: "{{sticky}}"
                             channel: "{{'alarm_stream' if critical else channel}}"
                             car_ui: "{{android_auto}}"
