@@ -75,7 +75,7 @@ blueprint:
         Примечание: если группа содержит и мобильные устройства, и телевизоры, ТВ не покажет снимок, если не включён параметр "Уведомления на ТВ". Однако это также помешает телефонам Android получать миниатюры.
       default: ""
     base_url:
-      name: Base URL (необязательно)
+      name: Базовый URL (необязательно)
       description: |
         Внешний URL вашего экземпляра Home Assistant.
         Рекомендуется для iOS и обязателен для Android/Fire TV.
@@ -83,15 +83,15 @@ blueprint:
         Примеры: http://192.168.1.25:8123   https://homeassistant.mydomain.com
       default: ""
     mqtt_topic:
-      name: MQTT Topic (дополнительно)
+      name: MQTT-топик (дополнительно)
       description: MQTT-топик, в который Frigate отправляет сообщения review.
       default: frigate/reviews
     mqtt_payload:
-      name: MQTT Payload (дополнительно)
+      name: MQTT-полезная нагрузка (дополнительно)
       description: Используемый MQTT payload от Frigate.
       default: new
     client_id:
-      name: Client ID (необязательно, дополнительно)
+      name: ID клиента (необязательно, дополнительно)
       description: Используется для поддержки нескольких экземпляров Frigate. Оставьте пустым, если не уверены, что делаете.
       default: ""
     telegram:
@@ -102,7 +102,7 @@ blueprint:
       collapsed: true
       input:
         telegram_base_url:
-          name: Telegram Base URL (необязательно)
+          name: Базовый URL Telegram (необязательно)
           description: |
             Внутренний URL вашего экземпляра Home Assistant.
             Используется только для интеграции Telegram (для загрузки медиа). Полезно, когда ваш Base URL указывает на прокси-экземпляр,
@@ -111,7 +111,7 @@ blueprint:
             Примеры: http://192.168.1.25:8123
           default: ""
         notify_telegram_chat_id:
-          name: Telegram Chat ID (необязательно)
+          name: ID чата Telegram (необязательно)
           description: |
             Chat ID, куда отправлять уведомления Telegram.
             Если задан, он переопределит отдельные устройства и группы выше. Примечание: параметр TV ниже должен быть выключен.
@@ -213,33 +213,33 @@ blueprint:
                 - "{{'critical' if now().hour in [8,9,10,11,12,13,14,15,16,17,18] else 'active'}}"
                 - "{{'time-sensitive' if is_state('sun.sun', 'above_horizon') else 'passive' }}"
         tts:
-          name: Use TTS to override silent/dnd modes on specific phones.
+          name: Использовать TTS для обхода беззвучного режима и DND на некоторых телефонах
           description: |
-            Some phones (the Samsung galaxy line, in particular,) disable the ability to use `alarm_stream` as a means to bypass the current sound settings. This option allows TTS to announce the alert instead, which does bypass the sound settings.
+            Некоторые телефоны, особенно линейка Samsung Galaxy, отключают возможность использовать `alarm_stream` для обхода текущих звуковых настроек. Эта опция позволяет вместо этого озвучивать оповещение через TTS, что действительно обходит звуковые ограничения.
           default: false
           selector:
             boolean:
         tts_helper:
-          name: Entity to store ids already alerted by TTS
+          name: Сущность для хранения ID, уже озвученных через TTS
           description: |
-            In order for TTS to honor alert_once settings, create a text helper (/config/helpers), which will be used to store the ids for any tts alerts that have gone out. Set the maximum character count to 250 to store the latest 25 alert ids. Then select it here
+            Чтобы TTS учитывал настройку `alert_once`, создайте текстовый helper (`/config/helpers`), который будет хранить ID уже отправленных TTS-оповещений. Установите максимальную длину в 250 символов, чтобы хранить последние 25 ID, и затем выберите его здесь
           default: ""
           selector:
             entity:
               filter:
                 integration: input_text
         alert_once:
-          name: Alert Once (Optional)
-          description: Only the first notification for each event will play a sound. Updates, including new thumbnails, will be silent. iOS users who use Critical Notifications above will still hear default critical sounds for updates.
+          name: Оповещать со звуком только один раз (необязательно)
+          description: Только первое уведомление для каждого события будет воспроизводить звук. Обновления, включая новые миниатюры, будут беззвучными. Пользователи iOS, использующие критические уведомления выше, всё равно будут слышать стандартные критические звуки для обновлений.
           default: false
           selector:
             boolean:
         attachment:
-          name: Initial Attachment
+          name: Первое вложение
           description: |
-            Choose which image or GIF to attach to the initial notification.
+            Выберите, какое изображение или GIF прикреплять к первому уведомлению.
 
-            Note: TVs will always get sent the snapshot.
+            Примечание: на ТВ всегда будет отправляться снимок.
           default: "{{base_url}}/api/frigate{{client_id}}/notifications/{{id}}/thumbnail.jpg"
           selector:
             select:
@@ -272,12 +272,12 @@ blueprint:
                   value: "{{base_url}}/api/frigate{{client_id}}/notifications/{{id}}/snapshot.jpg?bbox=1&crop=1&format=android"
               mode: dropdown
         attachment_2:
-          name: Subsequent Attachment (Optional)
+          name: Вложение для последующих уведомлений (необязательно)
           description: |
-            Choose which image or GIF to attach to the notification for any updates. It is recommended to enable Final Update
-            Set to None to continue using Initial Attachment for updates. 
+            Выберите, какое изображение или GIF прикреплять к уведомлениям-обновлениям. Рекомендуется включить "Финальное обновление".
+            Установите "Нет", чтобы для обновлений продолжало использоваться первое вложение.
 
-            Note: TVs will get sent the snapshot if GIF is selected.
+            Примечание: если выбран GIF, на ТВ всё равно будет отправляться снимок.
           default: "{{base_url}}/api/frigate{{client_id}}/notifications/{{id}}/thumbnail.jpg"
           selector:
             select:
@@ -312,87 +312,87 @@ blueprint:
                   value: "{{base_url}}/api/frigate{{client_id}}/notifications/{{id}}/snapshot.jpg?bbox=1&crop=1&format=android"
               mode: dropdown
         video:
-          name: Video (Optional)
-          description: You can optionally attach the clip to the notification which will replace the attachment above, if available.
+          name: Видео (необязательно)
+          description: При желании можно прикрепить к уведомлению клип, который заменит вложение выше, если он доступен.
           default: ""
           selector:
             select:
               options:
                 - label: Нет
                   value: ""
-                - label: Review GIF
+                - label: GIF обзора
                   # compared to attachments above, we add format=ts to allow HA to interpret the GIFs as videos, otherwise it fails.
                   value: "{{base_url}}/api/frigate{{client_id}}/notifications/{{review_id}}/review_preview.gif?format=ts"
-                - label: Object 1 Event GIF
+                - label: GIF события объекта 1
                   value: "{{base_url}}/api/frigate{{client_id}}/notifications/{{id}}/event_preview.gif?format=ts"
-                - label: Clip mp4
+                - label: Клип mp4
                   value: "{{base_url}}/api/frigate{{client_id}}/notifications/{{id}}/clip.mp4"
-                - label: Clip m3u8 (iOS)
+                - label: Клип m3u8 (iOS)
                   # requires frigate integration 5.7.0+
                   value: "{{base_url}}/api/frigate{{client_id}}/notifications/{{id}}/master.m3u8"
               mode: dropdown
         final_update:
-          name: Final update (Optional)
-          description: Update the notification at the end of the event. Used to ensure the full video of GIF is sent. Configure the delay if necessary in the timers section (default - 5 seconds).
+          name: Финальное обновление (необязательно)
+          description: Обновляет уведомление в конце события. Используется, чтобы гарантировать отправку полного видео или GIF. При необходимости настройте задержку в разделе таймеров (по умолчанию 5 секунд).
           default: false
           selector:
             boolean:
         color:
-          name: Notification Color - Android and TV only (Optional)
+          name: Цвет уведомления - только для Android и ТВ (необязательно)
           description: |
-            Set the color of the notification on your Android mobile device or TV. 
-            TV supports `grey`, `black`, `indigo`, `green`, `red`, `cyan`, `teal`, `amber` or `pink` only.
+            Задаёт цвет уведомления на мобильном устройстве Android или ТВ.
+            ТВ поддерживает только `grey`, `black`, `indigo`, `green`, `red`, `cyan`, `teal`, `amber` или `pink`.
           default: "#03a9f4"
           selector:
             select:
               options:
-                - label: Primary (Steelblue)
+                - label: Основной (Steelblue)
                   value: "#03a9f4"
-                - label: Red
+                - label: Красный
                   value: "#f44336"
-                - label: Pink
+                - label: Розовый
                   value: "#e91e63"
-                - label: Purple
+                - label: Фиолетовый
                   value: "#926bc7"
-                - label: Deep Purple
+                - label: Тёмно-фиолетовый
                   value: "#6e41ab"
-                - label: Indigo
+                - label: Индиго
                   value: "#3f51b5"
-                - label: Blue
+                - label: Синий
                   value: "#2196f3"
-                - label: Light Blue
+                - label: Голубой
                   value: "#03a9f4"
-                - label: Cyan
+                - label: Циан
                   value: "#00bcd4"
-                - label: Teal
+                - label: Бирюзовый
                   value: "#009688"
-                - label: Green
+                - label: Зелёный
                   value: "#4caf50"
-                - label: Light Green
+                - label: Светло-зелёный
                   value: "#8bc34a"
-                - label: Lime
+                - label: Лаймовый
                   value: "#cddc39"
-                - label: Yellow
+                - label: Жёлтый
                   value: "#ffeb3b"
-                - label: Amber
+                - label: Янтарный
                   value: "#ffc107"
-                - label: Orange
+                - label: Оранжевый
                   value: "#ff9800"
-                - label: Deep Orange
+                - label: Тёмно-оранжевый
                   value: "#ff5722"
-                - label: Brown
+                - label: Коричневый
                   value: "#795548"
-                - label: Light Grey
+                - label: Светло-серый
                   value: "#bdbdbd"
-                - label: Grey
+                - label: Серый
                   value: "#9e9e9e"
-                - label: Dark Grey
+                - label: Тёмно-серый
                   value: "#606060"
-                - label: Blue Grey
+                - label: Сине-серый
                   value: "#607d8b"
-                - label: Black
+                - label: Чёрный
                   value: "#000000"
-                - label: White
+                - label: Белый
                   value: "#ffffff"
         icon:
           name: Иконка уведомления (необязательно)
@@ -417,8 +417,8 @@ blueprint:
                 - "frigate-notification"
               custom_value: true
         tag:
-          name: Tag
-          description: Tag используется для идентификации отдельных уведомлений, чтобы заменять их обновлёнными изображениями и текстом. По умолчанию используется ID события
+          name: Метка
+          description: Метка используется для идентификации отдельных уведомлений, чтобы заменять их обновлёнными изображениями и текстом. По умолчанию используется ID события
           default: "{{id}}"
         sound:
           name: Звук уведомления - только iOS (необязательно)
@@ -927,21 +927,21 @@ blueprint:
                   value: "{{base_url}}/api/frigate{{client_id}}/notifications/{{id}}/snapshot.jpg"
                 - label: Открыть поток
                   value: "{{base_url}}/api/camera_proxy_stream/camera.{{ camera | default('') | lower | replace('-','_') }}?token={{ state_attr('camera.' ~ (camera | default('')), 'access_token') }}"
-                - label: Open Home Assistant (web)
+                - label: Открыть Home Assistant (web)
                   value: "{{base_url}}/lovelace"
-                - label: Open Home Assistant (app)
+                - label: Открыть Home Assistant (app)
                   value: /lovelace
-                - label: Open Frigate
+                - label: Открыть Frigate
                   value: /ccab4aaf_frigate/ingress
-                - label: Open Frigate (Full Access)
+                - label: Открыть Frigate (полный доступ)
                   value: /ccab4aaf_frigate-fa/ingress
-                - label: Open Frigate (proxy)
+                - label: Открыть Frigate (proxy)
                   value: /ccab4aaf_frigate-proxy/ingress
                 - label: Открыть поток (Frigate Ingress)
                   value: /frigate?index=%23{{camera}}
                 - label: Открыть событие (Frigate Ingress)
                   value: /frigate?index=review?id={{review_id}}
-                - label: Open Reolink App (Android)
+                - label: Открыть Reolink App (Android)
                   value: app://com.mcu.reolink
                 - label: Пользовательское действие (ручной запуск)
                   value: custom-{{ this.entity_id if this is defined and this.entity_id is defined else '' }}
@@ -974,23 +974,23 @@ blueprint:
                   value: "{{base_url}}/api/frigate{{client_id}}/notifications/{{id}}/snapshot.jpg"
                 - label: Открыть поток
                   value: "{{base_url}}/api/camera_proxy_stream/camera.{{ camera | default('') | lower | replace('-','_') }}?token={{ state_attr('camera.' ~ (camera | default('')), 'access_token') }}"
-                - label: Open Home Assistant (web)
+                - label: Открыть Home Assistant (web)
                   value: "{{base_url}}/lovelace"
-                - label: Open Home Assistant (app)
+                - label: Открыть Home Assistant (app)
                   value: /lovelace
-                - label: Open Frigate
+                - label: Открыть Frigate
                   value: /ccab4aaf_frigate/ingress
-                - label: Open Frigate (Full Access)
+                - label: Открыть Frigate (полный доступ)
                   value: /ccab4aaf_frigate-fa/ingress
-                - label: Open Frigate (proxy)
+                - label: Открыть Frigate (proxy)
                   value: /ccab4aaf_frigate-proxy/ingress
                 - label: Открыть поток (Frigate Ingress)
                   value: /frigate?index=%23{{camera}}
                 - label: Открыть событие (Frigate Ingress)
                   value: /frigate?index=review?id={{review_id}}
-                - label: Open Reolink App (Android)
+                - label: Открыть Reolink App (Android)
                   value: app://com.mcu.reolink
-                - label: Custom Action (Manual Trigger)
+                - label: Пользовательское действие (ручной запуск)
                   value: custom-{{ this.entity_id if this is defined and this.entity_id is defined else '' }}
               custom_value: true
         icon_3:
@@ -1103,8 +1103,8 @@ blueprint:
           selector:
             boolean:
         redacted:
-          name: Скрывать Base URL
-          description: Скрывает Base URL в отладочном выводе, чтобы им было проще делиться. В остальных частях трассировки URL не скрывается.
+          name: Скрывать базовый URL
+          description: Скрывает базовый URL в отладочном выводе, чтобы им было проще делиться. В остальных частях трассировки URL не скрывается.
           default: true
           selector:
             boolean:
