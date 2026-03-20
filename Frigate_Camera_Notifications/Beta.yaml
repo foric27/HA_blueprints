@@ -153,11 +153,11 @@ blueprint:
                   value: "🔔 {{ label }} у {{ camera_name }}"
               custom_value: true
         update_sub_label:
-          name: Update Sub Labels (Advanced)
+          name: Обновлять подметки (дополнительно)
           description: |
-            Update the title and/or message with the matched face name and trigger a notification update.
+            Обновлять заголовок и/или текст уведомления именем совпавшего лица и запускать обновление уведомления.
 
-            Requires face detection to be configured via Double Take (Advanced). Requires Title and/or Message to contain {{ label }} variable
+            Требуется настроенное распознавание лиц через Double Take (дополнительно). Заголовок и/или текст уведомления должны содержать переменную {{ label }}
           default: true
           selector:
             boolean:
