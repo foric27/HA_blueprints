@@ -1,46 +1,46 @@
 blueprint:
-  name: Frigate Notifications (0.15.0.3)
+  name: Уведомления Frigate (0.15.0.3)
   author: SgtBatten
   homeassistant:
     min_version: 2024.11.0
   description: |
-    ## Frigate Notifications
+    ## Уведомления Frigate
 
-    A highly customisable Notification template for Frigate Camera Notifications.
+    Гибко настраиваемый шаблон уведомлений для камер Frigate.
 
-    ### Software Version Requirements
-      - Minimum Home Assistant Version: 2024.11
-      - Minimum Frigate Version: 0.14.0
-      - Minimum Frigate Integration Version: 5.7.0
-        - **Note:** "Enable the unauthenticated notification event proxy" must be ticked during setup
-      - An MQTT broker connected to Home Assistant and Frigate.
-      - Minimum iOS Version: 15.0
+    ### Требования к версиям ПО
+      - Минимальная версия Home Assistant: 2024.11
+      - Минимальная версия Frigate: 0.14.0
+      - Минимальная версия интеграции Frigate: 5.7.0
+        - **Примечание:** во время настройки нужно включить опцию "Enable the unauthenticated notification event proxy"
+      - MQTT-брокер, подключённый к Home Assistant и Frigate.
+      - Минимальная версия iOS: 15.0
 
-    ### Required Configuration Options:
-      - Frigate Cameras
-      - Mobile Device (Running HA Companion App)
+    ### Обязательные параметры:
+      - Камеры Frigate
+      - Мобильное устройство (с приложением HA Companion)
 
-    ### Features:
-      - Easily select the camera entities or mobile device using a drop-down menu.
-      - Configure multiple cameras in one automation.
-      - Optional Sprinter and Final GenAI notification updates with separate attachment and description toggles.
+    ### Возможности:
+      - Удобный выбор камер и мобильного устройства из выпадающего списка.
+      - Настройка нескольких камер в одной автоматизации.
+      - Необязательные обновления уведомлений Sprinter и Final GenAI с отдельными переключателями вложения и описания.
 
-      For the full features list visit the [GitHub Repository][1]
+      Полный список возможностей смотрите в [репозитории GitHub][1]
 
     [1]: https://github.com/SgtBatten/HA_blueprints/blob/main/Frigate_Camera_Notifications
 
-    ## Support
-    Go to https://github.com/SgtBatten/HA_blueprints to report bugs, request new features, or get support with your configuration.
+    ## Поддержка
+    Перейдите на https://github.com/SgtBatten/HA_blueprints, чтобы сообщить об ошибке, запросить новую функцию или получить помощь с настройкой.
 
   domain: automation
   source_url: https://github.com/SgtBatten/HA_blueprints/blob/main/Frigate_Camera_Notifications/Beta.yaml
   input:
     camera:
-      name: Frigate Cameras
+      name: Камеры Frigate
       description: |
-        Select the cameras that will trigger notifications. 
-        If you do not see cameras listed in the drop-down, check you have the Frigate integration installed.
-        To more effectively customise the notifications you may need to create one automation per camera.
+        Выберите камеры, которые будут запускать уведомления.
+        Если камеры не отображаются в выпадающем списке, проверьте, установлена ли интеграция Frigate.
+        Для более точной настройки уведомлений может потребоваться создать отдельную автоматизацию для каждой камеры.
       selector:
         entity:
           filter:
@@ -48,109 +48,109 @@ blueprint:
             domain: camera
           multiple: true
     notify_device:
-      name: Mobile Device
-      description: Select a device that runs the official Home Assistant app to receive notifications. When this is the only notification target, Frigate clip links are automatically adjusted for that device platform (Android uses clip.mp4, iOS uses master.m3u8). If you wish to notify a group of devices and/or Android/Fire TV use the field below to override this selection. This will be ignored in that case but is still required.
+      name: Мобильное устройство
+      description: Выберите устройство с официальным приложением Home Assistant для получения уведомлений. Если это единственная цель уведомления, ссылки на клипы Frigate автоматически подстраиваются под платформу устройства (Android использует clip.mp4, iOS использует master.m3u8). Если вы хотите отправлять уведомления в группу устройств и/или на Android/Fire TV, используйте поле ниже, чтобы переопределить этот выбор. В таком случае это значение будет игнорироваться, но всё равно обязательно.
       default: false
       selector:
         device:
           filter:
             integration: mobile_app
     notify_all_devices:
-      name: Notify All Devices
+      name: Уведомлять все устройства
       description: |
-        Send notifications via notify.notify instead of a single mobile device.
+        Отправлять уведомления через `notify.notify`, а не на одно конкретное мобильное устройство.
 
-        If enabled, this overrides the Mobile Device option, but Notification Group / Android/Fire TV below will still take priority when set.
+        Если включено, этот параметр переопределяет выбор "Мобильное устройство", но "Группа уведомлений / Android/Fire TV" ниже всё равно имеет приоритет, если задана.
 
-        Important: when using Notify All Devices or a notification group that includes iOS devices, set Tap Action URL and any clip action button URLs to View Clip (iOS). The blueprint can only auto-select the correct Frigate clip URL when sending to one selected mobile app device.
+        Важно: при использовании "Уведомлять все устройства" или группы уведомлений, в которую входят устройства iOS, установите для URL действия по нажатию и всех URL кнопок с клипами вариант "Открыть клип (iOS)". Блюпринт может автоматически выбрать правильный URL клипа Frigate только при отправке на одно выбранное мобильное устройство.
       default: false
       selector:
         boolean:
     notify_group:
-      name: Notification Group or Android/Fire TV (Optional)
+      name: Группа уведомлений или Android/Fire TV (необязательно)
       description: |
-        The name of the group or individual TV to send notifications to.
-        If set, this will override the individual devices above.
+        Имя группы или отдельного телевизора, куда отправлять уведомления.
+        Если указано, это значение переопределит отдельные устройства выше.
 
-        Note: If the group contains both mobile devices and TVs, the TV will not display the snapshot unless "TV notifications" is set to true. However, this will stop Android phones from receiving thumbnails.
+        Примечание: если группа содержит и мобильные устройства, и телевизоры, ТВ не покажет снимок, если не включён параметр "Уведомления на ТВ". Однако это также помешает телефонам Android получать миниатюры.
       default: ""
     base_url:
-      name: Base URL (Optional)
+      name: Base URL (необязательно)
       description: |
-        The external URL for your Home Assistant instance.
-        Recommended for iOS and required for Android/Fire TV.
-        Must include the scheme i.e http:// or https://
-        Examples: http://192.168.1.25:8123   https://homeassistant.mydomain.com
+        Внешний URL вашего экземпляра Home Assistant.
+        Рекомендуется для iOS и обязателен для Android/Fire TV.
+        Должен включать схему, например `http://` или `https://`
+        Примеры: http://192.168.1.25:8123   https://homeassistant.mydomain.com
       default: ""
     mqtt_topic:
-      name: MQTT Topic (Advanced)
-      description: The MQTT topic Frigate sends review messages in.
+      name: MQTT Topic (дополнительно)
+      description: MQTT-топик, в который Frigate отправляет сообщения review.
       default: frigate/reviews
     mqtt_payload:
-      name: MQTT Payload (Advanced)
-      description: The Frigate MQTT payload to use.
+      name: MQTT Payload (дополнительно)
+      description: Используемый MQTT payload от Frigate.
       default: new
     client_id:
-      name: Client ID (Optional-Advanced)
-      description: Used to support multiple instances of Frigate. Leave blank if you don't know what to do.
+      name: Client ID (необязательно, дополнительно)
+      description: Используется для поддержки нескольких экземпляров Frigate. Оставьте пустым, если не уверены, что делаете.
       default: ""
     telegram:
       name: |
-        # Telegram Configuration
-      description: These are Telegram specific Options.
+        # Настройки Telegram
+      description: Параметры, относящиеся к Telegram.
       icon: mdi:phone-outline
       collapsed: true
       input:
         telegram_base_url:
-          name: Telegram Base URL (Optional)
+          name: Telegram Base URL (необязательно)
           description: |
-            The internal URL for your Home Assistant instance.
-            Used only for telegram integration (For downloading media). Useful when your base URL points to a proxy instance
-            which could be unreachable from your home assistant instance. If unset telegram will use Base URL.
-            Must include the scheme i.e http:// or https://
-            Examples: http://192.168.1.25:8123
+            Внутренний URL вашего экземпляра Home Assistant.
+            Используется только для интеграции Telegram (для загрузки медиа). Полезно, когда ваш Base URL указывает на прокси-экземпляр,
+            который может быть недоступен из самого Home Assistant. Если не задано, Telegram будет использовать Base URL.
+            Должен включать схему, например `http://` или `https://`
+            Примеры: http://192.168.1.25:8123
           default: ""
         notify_telegram_chat_id:
-          name: Telegram Chat ID (Optional)
+          name: Telegram Chat ID (необязательно)
           description: |
-            The chat ID to send telegram notifications to.
-            If set, this will override individual devices and groups above. Note: TV (far below) must be set to false.
-            Base URL must start with https since telegram URL buttons only work with https.
+            Chat ID, куда отправлять уведомления Telegram.
+            Если задан, он переопределит отдельные устройства и группы выше. Примечание: параметр TV ниже должен быть выключен.
+            Base URL должен начинаться с `https`, так как URL-кнопки Telegram работают только с `https`.
           default: ""
     notification_customisations:
       name: |
-        # Notification Customisations
-      description: These are Notification Customisation Options
+        # Настройка уведомлений
+      description: Параметры настройки уведомлений
       icon: mdi:bell
       collapsed: true
       input:
         title:
-          name: Notification Title (Optional)
-          description: The title of the notification.
+          name: Заголовок уведомления (необязательно)
+          description: Заголовок уведомления.
           default: ""
         message:
-          name: Notification Message
+          name: Текст уведомления
           description: |
-            The message of the notification.
-            You can use variables such as {{camera_name}} and {{label}}
-            e.g., A {{ label }} {{ ' was' if type == 'end' else '' }} detected on the {{ camera_name }} camera.
+            Текст уведомления.
+            Можно использовать переменные, например {{camera_name}} и {{label}}
+            Например: Обнаружен(а) {{ label }} на камере {{ camera_name }}.
 
-          default: "A {{ label }} {{ 'was detected' }} on the {{ camera_name }} camera."
+          default: "{{ label }} обнаружен(а) на камере {{ camera_name }}."
           selector:
             select:
               options:
-                - label: "Default:   e.g., A Person was detected on the Side camera."
-                  value: "A {{ label }} {{ 'was detected' }} on the {{ camera_name }} camera."
-                - label: "Short:     e.g., Person detected - Side"
-                  value: "{{ label }} detected - {{ camera_name }}"
-                - label: "Short with a timestamp HH:MM"
-                  value: "{{ label }} detected - {{ camera_name }} at {{event['after']['start_time']|timestamp_custom('%H:%M')}}"
-                - label: "Long:      e.g., A Person was detected on the Side camera in the driveway."
-                  value: "{{ label }}{{ ' was' if type == 'end' else '' }} detected on the {{ camera_name }} camera{{' in the ' if after_zones|length}}{{ after_zones | join(', ') | replace('_', ' ' ) | title }}."
-                - label: "Long with a timestamp HH:MM"
-                  value: "{{ label }}{{ ' was' if type == 'end' else '' }} detected on the {{ camera_name }} camera{{' in the ' if after_zones|length}}{{ after_zones | join(', ') | replace('_', ' ' ) | title }} at {{event['after']['start_time']|timestamp_custom('%H:%M')}}."
-                - label: "Doorbell Notification"
-                  value: "🔔 {{ label }}{{ ' was' if type == 'end' else ' is' }} at the {{ camera_name }}"
+                - label: "По умолчанию: например, Человек обнаружен на боковой камере."
+                  value: "{{ label }} обнаружен(а) на камере {{ camera_name }}."
+                - label: "Короткий: например, Человек обнаружен - Боковая"
+                  value: "{{ label }} обнаружен(а) - {{ camera_name }}"
+                - label: "Короткий со временем HH:MM"
+                  value: "{{ label }} обнаружен(а) - {{ camera_name }} в {{event['after']['start_time']|timestamp_custom('%H:%M')}}"
+                - label: "Длинный: например, Человек обнаружен на боковой камере в зоне driveway."
+                  value: "{{ label }} обнаружен(а) на камере {{ camera_name }}{{' в зоне ' if after_zones|length}}{{ after_zones | join(', ') | replace('_', ' ' ) | title }}."
+                - label: "Длинный со временем HH:MM"
+                  value: "{{ label }} обнаружен(а) на камере {{ camera_name }}{{' в зоне ' if after_zones|length}}{{ after_zones | join(', ') | replace('_', ' ' ) | title }} в {{event['after']['start_time']|timestamp_custom('%H:%M')}}."
+                - label: "Уведомление дверного звонка"
+                  value: "🔔 {{ label }} у {{ camera_name }}"
               custom_value: true
         update_sub_label:
           name: Update Sub Labels (Advanced)
@@ -162,14 +162,14 @@ blueprint:
           selector:
             boolean:
         subtitle:
-          name: Subtitle
-          description: A secondary heading you can use in your notifications.
+          name: Подзаголовок
+          description: Дополнительный заголовок, который можно использовать в уведомлениях.
           default: ""
         critical:
-          name: Critical Notification (Optional)
+          name: Критическое уведомление (необязательно)
           description: |
-            Send as a critical notification to the mobile device. This will ignore silent/vibrate modes.
-            You can choose to limit critical notifications to certain times using a template (some examples are provided but you can enter your own as long as it outputs true or false)
+            Отправлять уведомление как критическое на мобильное устройство. Это будет игнорировать беззвучный режим и вибрацию.
+            Можно ограничить критические уведомления определённым временем с помощью шаблона (примеры приведены, но можно указать и свой, если он возвращает `true` или `false`)
           default: "false"
           selector:
             select:
@@ -181,11 +181,11 @@ blueprint:
                 - "{{ event['after']['top_score'] |float(0) > 0.8 }}"
               custom_value: true
         interruption_level:
-          name: Interruption Level (iOS)
+          name: Уровень прерывания (iOS)
           description: |
-            Set the interruption level on iOS devices. This can be templated.
-            Must result in "passive", "active", "time-sensitive" or "critical" See https://companion.home-assistant.io/docs/notifications/notifications-basic#interruption-level for definitions
-            Critical option above will override this setting when it is true
+            Задаёт уровень прерывания на устройствах iOS. Можно использовать шаблон.
+            Результат должен быть одним из: "passive", "active", "time-sensitive" или "critical". Определения: https://companion.home-assistant.io/docs/notifications/notifications-basic#interruption-level
+            Если параметр "Критическое уведомление" выше установлен в `true`, он переопределит это значение
           default: "active"
           selector:
             select:
@@ -197,11 +197,11 @@ blueprint:
                 - "{{'critical' if now().hour in [8,9,10,11,12,13,14,15,16,17,18] else 'active'}}"
                 - "{{'time-sensitive' if is_state('sun.sun', 'above_horizon') else 'passive' }}"
         interruption_level_updates:
-          name: Interruption Level for Updates (iOS)
+          name: Уровень прерывания для обновлений (iOS)
           description: |
-            Set the interruption level for updates on iOS devices. This can be templated.
-            Must result in "passive", "active", "time-sensitive" or "critical" See https://companion.home-assistant.io/docs/notifications/notifications-basic#interruption-level for definitions
-            Critical option above will override this setting when it is true
+            Задаёт уровень прерывания для обновлений на устройствах iOS. Можно использовать шаблон.
+            Результат должен быть одним из: "passive", "active", "time-sensitive" или "critical". Определения: https://companion.home-assistant.io/docs/notifications/notifications-basic#interruption-level
+            Если параметр "Критическое уведомление" выше установлен в `true`, он переопределит это значение
           default: "passive"
           selector:
             select:
@@ -245,30 +245,30 @@ blueprint:
             select:
               options:
                 # format=android converts it to a 2:1 ratio for mobile display.
-                - label: Thumbnail
+                - label: Миниатюра
                   value: "{{base_url}}/api/frigate{{client_id}}/notifications/{{id}}/thumbnail.jpg"
-                - label: Snapshot
+                - label: Снимок
                   value: "{{base_url}}/api/frigate{{client_id}}/notifications/{{id}}/snapshot.jpg"
-                - label: Snapshot with bounding box
+                - label: Снимок с рамкой объекта
                   value: "{{base_url}}/api/frigate{{client_id}}/notifications/{{id}}/snapshot.jpg?bbox=1"
-                - label: Snapshot cropped
+                - label: Обрезанный снимок
                   value: "{{base_url}}/api/frigate{{client_id}}/notifications/{{id}}/snapshot.jpg?crop=1"
-                - label: Snapshot cropped with bounding box
+                - label: Обрезанный снимок с рамкой объекта
                   value: "{{base_url}}/api/frigate{{client_id}}/notifications/{{id}}/snapshot.jpg?bbox=1&crop=1"
-                - label: Review GIF
+                - label: GIF обзора
                   value: "{{base_url}}/api/frigate{{client_id}}/notifications/{{review_id}}/review_preview.gif"
                   # this will show the GIF associated with the first object detected by frigate
-                - label: Object 1 Event GIF
+                - label: GIF события объекта 1
                   value: "{{base_url}}/api/frigate{{client_id}}/notifications/{{id}}/event_preview.gif"
-                - label: Thumbnail (2:1)
+                - label: Миниатюра (2:1)
                   value: "{{base_url}}/api/frigate{{client_id}}/notifications/{{id}}/thumbnail.jpg?format=android"
-                - label: Snapshot (2:1)
+                - label: Снимок (2:1)
                   value: "{{base_url}}/api/frigate{{client_id}}/notifications/{{id}}/snapshot.jpg?format=android"
-                - label: Snapshot with bounding box (2:1)
+                - label: Снимок с рамкой объекта (2:1)
                   value: "{{base_url}}/api/frigate{{client_id}}/notifications/{{id}}/snapshot.jpg?bbox=1&format=android"
-                - label: Snapshot cropped (2:1)
+                - label: Обрезанный снимок (2:1)
                   value: "{{base_url}}/api/frigate{{client_id}}/notifications/{{id}}/snapshot.jpg?crop=1&format=android"
-                - label: Snapshot cropped with bounding box (2:1)
+                - label: Обрезанный снимок с рамкой объекта (2:1)
                   value: "{{base_url}}/api/frigate{{client_id}}/notifications/{{id}}/snapshot.jpg?bbox=1&crop=1&format=android"
               mode: dropdown
         attachment_2:
@@ -282,33 +282,33 @@ blueprint:
           selector:
             select:
               options:
-                - label: None
+                - label: Нет
                   value: "none"
                 # format=android converts it to a 2:1 ratio for mobile display.
-                - label: Thumbnail
+                - label: Миниатюра
                   value: "{{base_url}}/api/frigate{{client_id}}/notifications/{{id}}/thumbnail.jpg"
-                - label: Snapshot
+                - label: Снимок
                   value: "{{base_url}}/api/frigate{{client_id}}/notifications/{{id}}/snapshot.jpg"
-                - label: Snapshot with bounding box
+                - label: Снимок с рамкой объекта
                   value: "{{base_url}}/api/frigate{{client_id}}/notifications/{{id}}/snapshot.jpg?bbox=1"
-                - label: Snapshot cropped
+                - label: Обрезанный снимок
                   value: "{{base_url}}/api/frigate{{client_id}}/notifications/{{id}}/snapshot.jpg?crop=1"
-                - label: Snapshot cropped with bounding box
+                - label: Обрезанный снимок с рамкой объекта
                   value: "{{base_url}}/api/frigate{{client_id}}/notifications/{{id}}/snapshot.jpg?bbox=1&crop=1"
-                - label: Review GIF
+                - label: GIF обзора
                   value: "{{base_url}}/api/frigate{{client_id}}/notifications/{{review_id}}/review_preview.gif"
                   # this will show the GIF associated with the first object detected by frigate
-                - label: Object 1 Event GIF
+                - label: GIF события объекта 1
                   value: "{{base_url}}/api/frigate{{client_id}}/notifications/{{id}}/event_preview.gif"
-                - label: Thumbnail (2:1)
+                - label: Миниатюра (2:1)
                   value: "{{base_url}}/api/frigate{{client_id}}/notifications/{{id}}/thumbnail.jpg?format=android"
-                - label: Snapshot (2:1)
+                - label: Снимок (2:1)
                   value: "{{base_url}}/api/frigate{{client_id}}/notifications/{{id}}/snapshot.jpg?format=android"
-                - label: Snapshot with bounding box (2:1)
+                - label: Снимок с рамкой объекта (2:1)
                   value: "{{base_url}}/api/frigate{{client_id}}/notifications/{{id}}/snapshot.jpg?bbox=1&format=android"
-                - label: Snapshot cropped (2:1)
+                - label: Обрезанный снимок (2:1)
                   value: "{{base_url}}/api/frigate{{client_id}}/notifications/{{id}}/snapshot.jpg?crop=1&format=android"
-                - label: Snapshot cropped with bounding box (2:1)
+                - label: Обрезанный снимок с рамкой объекта (2:1)
                   value: "{{base_url}}/api/frigate{{client_id}}/notifications/{{id}}/snapshot.jpg?bbox=1&crop=1&format=android"
               mode: dropdown
         video:
@@ -318,7 +318,7 @@ blueprint:
           selector:
             select:
               options:
-                - label: None
+                - label: Нет
                   value: ""
                 - label: Review GIF
                   # compared to attachments above, we add format=ts to allow HA to interpret the GIFs as videos, otherwise it fails.
@@ -395,8 +395,8 @@ blueprint:
                 - label: White
                   value: "#ffffff"
         icon:
-          name: Notification Icon (Optional)
-          description: Change the icon that displays on the notification. You can enter a single icon or create a template like the example given in the dropdown. You must include 'mdi:' in the icon name.
+          name: Иконка уведомления (необязательно)
+          description: Изменяет иконку, отображаемую в уведомлении. Можно указать одну иконку или создать шаблон по примеру из выпадающего списка. В имени иконки обязательно должен быть префикс `mdi:`.
           default: mdi:homeassistant
           selector:
             select:
@@ -406,8 +406,8 @@ blueprint:
                 - "mdi:{{'account-outline' if label == 'Person' else 'dog' if label == 'Dog' else 'cat' if label == 'Cat' else 'car' if label == 'Car' else 'paw' if label == 'Animal' else 'home-assistant'}}"
               custom_value: true
         group:
-          name: Group
-          description: The group name that will determine if notifications are grouped on your mobile device. If you want notifications grouped by camera, ensure it contains {{camera}}
+          name: Группа
+          description: Имя группы, определяющее, будут ли уведомления группироваться на мобильном устройстве. Если хотите группировать уведомления по камере, убедитесь, что строка содержит {{camera}}
           default: "{{camera}}-frigate-notification"
           selector:
             select:
@@ -418,11 +418,11 @@ blueprint:
               custom_value: true
         tag:
           name: Tag
-          description: The Tag is used to identify individual notifications in order to replace them with updated images/text. Default is the Event ID 
+          description: Tag используется для идентификации отдельных уведомлений, чтобы заменять их обновлёнными изображениями и текстом. По умолчанию используется ID события
           default: "{{id}}"
         sound:
-          name: Notification Sound - iOS only (Optional)
-          description: You can specify a sound file on your device that will play for the notifications. You will need to import the sound file into Home Assistant.
+          name: Звук уведомления - только iOS (необязательно)
+          description: Можно указать звуковой файл на устройстве, который будет воспроизводиться для уведомлений. Сначала этот файл нужно импортировать в Home Assistant.
           default: default
           selector:
             select:
@@ -431,8 +431,8 @@ blueprint:
                 - none
               custom_value: true
         volume:
-          name: Volume Sound - iOS only (Optional)
-          description: You can specify a sound level between 0 and 100
+          name: Громкость звука - только iOS (необязательно)
+          description: Можно указать уровень громкости от 0 до 100
           default: 100
           selector:
             number:
@@ -442,8 +442,8 @@ blueprint:
               step: 1
               mode: slider
         ios_live_view:
-          name: Live View Entity - iOS only (Optional)
-          description: Attach a live view from the selected entity to the notification for iOS devices.
+          name: Сущность Live View - только iOS (необязательно)
+          description: Прикрепляет live view выбранной сущности к уведомлению на устройствах iOS.
           default: ""
           selector:
             entity:
@@ -451,159 +451,159 @@ blueprint:
                 domain: camera
         android_auto:
           name: Android Auto
-          description: Show the notification on Android Auto if the receiving device is connected.
+          description: Показывать уведомление в Android Auto, если принимающее устройство подключено.
           default: false
           selector:
             boolean:
         sticky:
-          name: Sticky - Android only (Optional)
+          name: Закреплённое - только Android (необязательно)
           description: |
-            When enabled, the notification will stay active on the device after tapping it and remain there until cleared.
+            Если включено, уведомление останется активным на устройстве после нажатия и будет отображаться, пока его не очистят.
           default: false
           selector:
             boolean:
         channel:
-          name: Notification Channel - Android only (Optional)
-          description: Create a new channel for notifications to allow custom notification sounds, vibration patterns, and override of Do Not Disturb mode. Configured directly on the device.
+          name: Канал уведомлений - только Android (необязательно)
+          description: Создаёт новый канал уведомлений для собственных звуков, шаблонов вибрации и обхода режима "Не беспокоить". Настраивается непосредственно на устройстве.
           default: ""
     genai_updates:
       name: |
-        # GenAI Updates
-      description: These are optional GenAI update options
+        # Обновления GenAI
+      description: Необязательные параметры обновлений GenAI
       icon: mdi:robot
       collapsed: true
       input:
         genai_sprinter:
-          name: Enable Sprinter GenAI Update
+          name: Включить обновление Sprinter GenAI
           description: |
-            Update the existing notification when Frigate publishes a tracked object description on `frigate/tracked_object_update`.
+            Обновляет существующее уведомление, когда Frigate публикует описание отслеживаемого объекта в `frigate/tracked_object_update`.
 
-            This update is sent silently to avoid repeated buzzes.
+            Это обновление отправляется без звука, чтобы избежать повторных сигналов.
           default: false
           selector:
             boolean:
         genai_sprinter_description:
-          name: Include Sprinter Description
-          description: Include the tracked object description text in the Sprinter update message body.
+          name: Включать описание Sprinter
+          description: Добавляет текст описания отслеживаемого объекта в сообщение обновления Sprinter.
           default: true
           selector:
             boolean:
         genai_sprinter_attachment:
-          name: Sprinter Attachment
-          description: Choose which media to attach to the Sprinter update.
+          name: Вложение Sprinter
+          description: Выберите медиа, которое будет прикрепляться к обновлению Sprinter.
           default: "{{base_url}}/api/frigate{{client_id}}/notifications/{{id}}/event_preview.gif"
           selector:
             select:
               options:
-                - label: Thumbnail
+                - label: Миниатюра
                   value: "{{base_url}}/api/frigate{{client_id}}/notifications/{{id}}/thumbnail.jpg"
-                - label: Snapshot
+                - label: Снимок
                   value: "{{base_url}}/api/frigate{{client_id}}/notifications/{{id}}/snapshot.jpg"
-                - label: Snapshot with bounding box
+                - label: Снимок с рамкой объекта
                   value: "{{base_url}}/api/frigate{{client_id}}/notifications/{{id}}/snapshot.jpg?bbox=1"
-                - label: Snapshot cropped
+                - label: Обрезанный снимок
                   value: "{{base_url}}/api/frigate{{client_id}}/notifications/{{id}}/snapshot.jpg?crop=1"
-                - label: Snapshot cropped with bounding box
+                - label: Обрезанный снимок с рамкой объекта
                   value: "{{base_url}}/api/frigate{{client_id}}/notifications/{{id}}/snapshot.jpg?bbox=1&crop=1"
-                - label: Object 1 Event GIF
+                - label: GIF события объекта 1
                   value: "{{base_url}}/api/frigate{{client_id}}/notifications/{{id}}/event_preview.gif"
-                - label: Thumbnail (2:1)
+                - label: Миниатюра (2:1)
                   value: "{{base_url}}/api/frigate{{client_id}}/notifications/{{id}}/thumbnail.jpg?format=android"
-                - label: Snapshot (2:1)
+                - label: Снимок (2:1)
                   value: "{{base_url}}/api/frigate{{client_id}}/notifications/{{id}}/snapshot.jpg?format=android"
-                - label: Snapshot with bounding box (2:1)
+                - label: Снимок с рамкой объекта (2:1)
                   value: "{{base_url}}/api/frigate{{client_id}}/notifications/{{id}}/snapshot.jpg?bbox=1&format=android"
-                - label: Snapshot cropped (2:1)
+                - label: Обрезанный снимок (2:1)
                   value: "{{base_url}}/api/frigate{{client_id}}/notifications/{{id}}/snapshot.jpg?crop=1&format=android"
-                - label: Snapshot cropped with bounding box (2:1)
+                - label: Обрезанный снимок с рамкой объекта (2:1)
                   value: "{{base_url}}/api/frigate{{client_id}}/notifications/{{id}}/snapshot.jpg?bbox=1&crop=1&format=android"
               mode: dropdown
         genai_final:
-          name: Enable Final GenAI Review Summary
+          name: Включить финальную сводку обзора GenAI
           description: |
-            Update the existing notification when Frigate publishes a review-summary GenAI message on the reviews topic.
+            Обновляет существующее уведомление, когда Frigate публикует сообщение review-summary GenAI в топик reviews.
 
-            Requires Frigate review summaries.
+            Требуются review summaries в Frigate.
           default: false
           selector:
             boolean:
         genai_final_description:
-          name: Include Final Description
-          description: Include the final GenAI review summary text in the update message body.
+          name: Включать финальное описание
+          description: Добавляет текст финальной сводки обзора GenAI в сообщение обновления.
           default: true
           selector:
             boolean:
         genai_final_attachment:
-          name: Final GenAI Attachment
-          description: Choose which media to attach to the Final GenAI update.
+          name: Финальное вложение GenAI
+          description: Выберите медиа, которое будет прикрепляться к финальному обновлению GenAI.
           default: "{{base_url}}/api/frigate{{client_id}}/notifications/{{review_id}}/review_preview.gif"
           selector:
             select:
               options:
-                - label: Thumbnail
+                - label: Миниатюра
                   value: "{{base_url}}/api/frigate{{client_id}}/notifications/{{id}}/thumbnail.jpg"
-                - label: Snapshot
+                - label: Снимок
                   value: "{{base_url}}/api/frigate{{client_id}}/notifications/{{id}}/snapshot.jpg"
-                - label: Snapshot with bounding box
+                - label: Снимок с рамкой объекта
                   value: "{{base_url}}/api/frigate{{client_id}}/notifications/{{id}}/snapshot.jpg?bbox=1"
-                - label: Snapshot cropped
+                - label: Обрезанный снимок
                   value: "{{base_url}}/api/frigate{{client_id}}/notifications/{{id}}/snapshot.jpg?crop=1"
-                - label: Snapshot cropped with bounding box
+                - label: Обрезанный снимок с рамкой объекта
                   value: "{{base_url}}/api/frigate{{client_id}}/notifications/{{id}}/snapshot.jpg?bbox=1&crop=1"
-                - label: Review GIF
+                - label: GIF обзора
                   value: "{{base_url}}/api/frigate{{client_id}}/notifications/{{review_id}}/review_preview.gif"
-                - label: Object 1 Event GIF
+                - label: GIF события объекта 1
                   value: "{{base_url}}/api/frigate{{client_id}}/notifications/{{id}}/event_preview.gif"
-                - label: Thumbnail (2:1)
+                - label: Миниатюра (2:1)
                   value: "{{base_url}}/api/frigate{{client_id}}/notifications/{{id}}/thumbnail.jpg?format=android"
-                - label: Snapshot (2:1)
+                - label: Снимок (2:1)
                   value: "{{base_url}}/api/frigate{{client_id}}/notifications/{{id}}/snapshot.jpg?format=android"
-                - label: Snapshot with bounding box (2:1)
+                - label: Снимок с рамкой объекта (2:1)
                   value: "{{base_url}}/api/frigate{{client_id}}/notifications/{{id}}/snapshot.jpg?bbox=1&format=android"
-                - label: Snapshot cropped (2:1)
+                - label: Обрезанный снимок (2:1)
                   value: "{{base_url}}/api/frigate{{client_id}}/notifications/{{id}}/snapshot.jpg?crop=1&format=android"
-                - label: Snapshot cropped with bounding box (2:1)
+                - label: Обрезанный снимок с рамкой объекта (2:1)
                   value: "{{base_url}}/api/frigate{{client_id}}/notifications/{{id}}/snapshot.jpg?bbox=1&crop=1&format=android"
               mode: dropdown
     filters:
       name: |
-        # Filters
-      description: These help limit when or what you are notified about.
+        # Фильтры
+      description: Эти параметры помогают ограничить, когда и о чём вы будете получать уведомления.
       icon: mdi:filter
       collapsed: true
       input:
         review_severity:
-          name: Event Type
+          name: Тип события
           description: |
-            Specify the classification of Frigate events to be notified about.
+            Укажите, о событиях какого типа из Frigate нужно уведомлять.
           default:
             - alert
             - detection
           selector:
             select:
               options:
-                - label: Alerts
+                - label: Тревоги
                   value: alert
-                - label: Detections
+                - label: Обнаружения
                   value: detection
               multiple: true
         master_condition:
-          name: Master Condition (Optional)
-          description: Set conditions that will stop the automation from running if the result is false. No other tests will be conducted later. This is a kill switch on initiation.
+          name: Главное условие (необязательно)
+          description: Задаёт условия, которые остановят выполнение автоматизации, если результат будет `false`. Остальные проверки после этого не выполняются.
           default: []
           selector:
             condition: {}
         zone_filter:
-          name: Zone Filter on/off (Optional)
-          description: Enable to only notify if an object has entered a zone listed below.
+          name: Фильтр зон вкл/выкл (необязательно)
+          description: Включите, чтобы отправлять уведомления только если объект вошёл в одну из зон, указанных ниже.
           default: false
           selector:
             boolean:
         zones:
-          name: Required Zones (Optional - Enabled Above)
+          name: Обязательные зоны (необязательно, включается выше)
           description: |
-            Enter the name of one zone at a time. It must be lowercase and include underscores as per your Frigate config.
-            By default any zone is acceptable. If you desire ALL listed zones to be entered before getting a notification, enable the multi toggle below.
+            Вводите названия зон по одной. Они должны быть в нижнем регистре и с подчёркиваниями, как в вашей конфигурации Frigate.
+            По умолчанию подходит любая зона. Если хотите получать уведомление только после входа во ВСЕ перечисленные зоны, включите переключатель ниже.
           default: []
           selector:
             select:
@@ -616,22 +616,22 @@ blueprint:
               multiple: true
               custom_value: true
         zone_multi:
-          name: Multi-Zone (Optional)
-          description: Require all zones specified above to be entered, instead of any listed zone. Zone Filter must be enabled also.
+          name: Несколько зон (необязательно)
+          description: Требовать входа во все указанные выше зоны, а не в любую из списка. Фильтр зон тоже должен быть включён.
           default: false
           selector:
             boolean:
         zone_order_enforced:
-          name: Zone Order Enforced (Optional)
+          name: Соблюдать порядок зон (необязательно)
           description: |
-            Combined with Multi-Zone, requires zones to be entered in the same order as their requirement. 
-            Useful for alerting on arriving vehicles, while ignoring departing vehicles, for instance
+            В сочетании с "Несколько зон" требует, чтобы зоны проходились в том же порядке, в котором они указаны.
+            Это может быть полезно, например, чтобы оповещать о прибывающих автомобилях и игнорировать выезжающие.
           default: false
           selector:
             boolean:
         labels:
-          name: Object Filter (Optional)
-          description: Specify objects you wish to be notified about. Enter or select one object at a time.
+          name: Фильтр объектов (необязательно)
+          description: Укажите объекты, о которых нужно получать уведомления. Вводите или выбирайте по одному объекту за раз.
           default: ""
           selector:
             select:
@@ -646,8 +646,8 @@ blueprint:
               multiple: true
               custom_value: true
         presence_filter:
-          name: Presence Filter (Optional)
-          description: Only notify if ALL of the selected presence entities are not "home".
+          name: Фильтр присутствия (необязательно)
+          description: Отправлять уведомления только если ВСЕ выбранные сущности присутствия не находятся в состоянии `home`.
           default: ""
           selector:
             entity:
@@ -658,20 +658,20 @@ blueprint:
                   - group
               multiple: true
         state_filter:
-          name: State Filter on/off (Optional)
-          description: Enable the two State Filter settings below. Only notify if the selected entity is in the specified states.
+          name: Фильтр состояния вкл/выкл (необязательно)
+          description: Включает два параметра фильтра состояния ниже. Уведомлять только если выбранная сущность находится в указанных состояниях.
           default: false
           selector:
             boolean:
         state_entity:
-          name: State Filter Entity (Optional)
-          description: Only notify if the selected entity is in the below state. You must enable "State Filter" above to use this.
+          name: Сущность фильтра состояния (необязательно)
+          description: Уведомлять только если выбранная сущность находится в состоянии, указанном ниже. Для использования нужно включить "Фильтр состояния" выше.
           default: ""
           selector:
             entity:
         state_filter_states:
-          name: State Filter States (Optional)
-          description: Enter the states that the above entity must be in, one at a time.
+          name: Состояния фильтра состояния (необязательно)
+          description: Введите состояния, в которых должна находиться указанная выше сущность, по одному за раз.
           default: []
           selector:
             select:
@@ -679,8 +679,8 @@ blueprint:
               multiple: true
               custom_value: true
         disable_times:
-          name: Time Filter (Optional)
-          description: Prevent notifications from being sent during the specified hours
+          name: Фильтр времени (необязательно)
+          description: Запрещает отправку уведомлений в указанные часы
           default: []
           selector:
             select:
@@ -735,19 +735,19 @@ blueprint:
                 - label: 23:00 - 23:59
                   value: "23"
         custom_filter:
-          name: Custom Filter (Optional - Advanced)
-          description: A filter that must result in true or false but can be templated as necessary. You will need to ensure it is enclosed with appropriate \"quotes\" and \{\{brackets\}\}.
+          name: Пользовательский фильтр (необязательно, дополнительно)
+          description: Фильтр, который должен возвращать `true` или `false`, но при необходимости может быть шаблоном. Убедитесь, что он заключён в правильные \"кавычки\" и \{\{скобки\}\}.
           default: true
     timers:
       name: |
-        # Timers
-      description: These are Timers you can customise
+        # Таймеры
+      description: Настраиваемые таймеры
       icon: mdi:gesture-double-tap
       collapsed: true
       input:
         cooldown:
-          name: Cooldown (Optional)
-          description: Delay before sending another notification for this camera after the last event.
+          name: Пауза между уведомлениями (необязательно)
+          description: Задержка перед отправкой следующего уведомления для этой камеры после последнего события.
           default: 0
           selector:
             number:
@@ -755,8 +755,8 @@ blueprint:
               min: 0
               unit_of_measurement: seconds
         timeout:
-          name: Timeout
-          description: Length of time the automation will wait for MQTT updates.
+          name: Тайм-аут
+          description: Время, в течение которого автоматизация будет ждать MQTT-обновления.
           default: 2
           selector:
             number:
@@ -764,10 +764,10 @@ blueprint:
               min: 0
               unit_of_measurement: minutes
         silence_timer:
-          name: Silence New Notifications (Optional)
+          name: Отключить новые уведомления на время (необязательно)
           description: |
-            How long to pause notifications for this camera when requested as part of the actionable notification. 
-            Note: Restarting Home Assistant during the period will break the timer and may disable the automation
+            На какое время приостанавливать уведомления для этой камеры по команде из интерактивного уведомления.
+            Примечание: перезапуск Home Assistant в этот период сбросит таймер и может отключить автоматизацию
           default: 30
           selector:
             number:
@@ -775,10 +775,10 @@ blueprint:
               min: 0
               unit_of_measurement: minutes
         loiter_timer:
-          name: Loitering Notifications (Optional)
+          name: Уведомления о задержке в кадре (необязательно)
           description: >
-            Sends new loitering notification if a stationary object is detected for longer
-            than the specified time. 0 is off and will not send notifications.
+            Отправляет новое уведомление о длительном нахождении в кадре, если неподвижный объект обнаруживается дольше
+            указанного времени. Значение 0 отключает эту функцию.
           default: 0
           selector:
             number:
@@ -786,11 +786,11 @@ blueprint:
               min: 0
               unit_of_measurement: seconds
         initial_delay:
-          name: Delay initial notification (Optional)
+          name: Задержка первого уведомления (необязательно)
           description: |
-            How long to delay the first notification for each event. Only applies if all conditions are met when the first event is defined by frigate
+            На сколько задерживать первое уведомление для каждого события. Применяется только если все условия выполнены в момент, когда Frigate определяет первое событие.
 
-            Use this if you DO NOT use "update image" and are experiencing notifications without attached images. Start with small numbers.
+            Используйте это, если вы НЕ используете "update image" и получаете уведомления без прикреплённых изображений. Начинайте с небольших значений.
           default: 0
           selector:
             number:
@@ -798,9 +798,9 @@ blueprint:
               min: 0
               unit_of_measurement: seconds
         final_delay:
-          name: Delay Final notification (Optional)
+          name: Задержка финального уведомления (необязательно)
           description: |
-            How long to delay the final notification for each event. Only applies if Final Update is enabled.
+            На сколько задерживать финальное уведомление для каждого события. Применяется только если включено "Финальное обновление".
           default: 5
           selector:
             number:
@@ -809,120 +809,120 @@ blueprint:
               unit_of_measurement: seconds
     actions:
       name: |
-        # Action Buttons and URLS
-      description: These are Action Buttons and URL Options
+        # Кнопки действий и URL
+      description: Настройки кнопок действий и URL
       icon: mdi:gesture-double-tap
       collapsed: true
       input:
         tap_action:
-          name: Tap Action URL
+          name: URL действия по нажатию
           description:
-            The URL to open when tapping on the notification. Some presets are provided, you can also set your own by typing in the box.
+            URL, который откроется при нажатии на уведомление. Есть готовые варианты, но можно ввести и свой.
 
-            When sending to one selected mobile app device, Frigate clip links are auto-adjusted for Android or iOS. When using Notify All Devices or a notification group that includes iOS devices, choose View Clip (iOS) for clip playback on iPhone/iPad.
+            При отправке на одно выбранное мобильное устройство ссылки на клипы Frigate автоматически подстраиваются под Android или iOS. При использовании "Уведомлять все устройства" или группы уведомлений, включающей устройства iOS, выбирайте "Открыть клип (iOS)" для воспроизведения клипов на iPhone/iPad.
 
-            These options define the text and URLs associated with the three action buttons at the bottom of the notification.
+            Эти параметры задают текст и URL для трёх кнопок действий внизу уведомления.
           default: "{{base_url}}/api/frigate{{client_id}}/notifications/{{id}}/clip.mp4"
           selector:
             select:
               options:
-                - label: View Clip
+                - label: Открыть клип
                   value: "{{base_url}}/api/frigate{{client_id}}/notifications/{{id}}/clip.mp4"
-                - label: View Clip (iOS)
+                - label: Открыть клип (iOS)
                   value: "{{base_url}}/api/frigate{{client_id}}/notifications/{{id}}/master.m3u8"
-                - label: View GIF
+                - label: Открыть GIF
                   value: "{{base_url}}/api/frigate{{client_id}}/notifications/{{review_id}}/review_preview.gif"
-                - label: View Snapshot
+                - label: Открыть снимок
                   value: "{{base_url}}/api/frigate{{client_id}}/notifications/{{id}}/snapshot.jpg"
-                - label: View Stream
+                - label: Открыть поток
                   value: "{{base_url}}/api/camera_proxy_stream/camera.{{ camera | default('') | lower | replace('-','_') }}?token={{ state_attr('camera.' ~ (camera | default('')), 'access_token') }}"
-                - label: Open Home Assistant (web)
+                - label: Открыть Home Assistant (web)
                   value: "{{base_url}}/lovelace"
-                - label: Open Home Assistant (app)
+                - label: Открыть Home Assistant (app)
                   value: /lovelace
-                - label: Open Frigate
+                - label: Открыть Frigate
                   value: /ccab4aaf_frigate/ingress
-                - label: Open Frigate (Full Access)
+                - label: Открыть Frigate (полный доступ)
                   value: /ccab4aaf_frigate-fa/ingress
-                - label: Open Frigate (proxy)
+                - label: Открыть Frigate (proxy)
                   value: /ccab4aaf_frigate-proxy/ingress
-                - label: View Stream (Frigate Ingress)
+                - label: Открыть поток (Frigate Ingress)
                   value: /frigate?index=%23{{camera}}
-                - label: View Event (Frigate Ingress)
+                - label: Открыть событие (Frigate Ingress)
                   value: /frigate?index=review?id={{review_id}}
-                - label: Open Reolink App (Android)
+                - label: Открыть Reolink App (Android)
                   value: app://com.mcu.reolink
-                - label: None (Android)
+                - label: Нет (Android)
                   value: noAction
-                - label: Notification History (Android)
+                - label: История уведомлений (Android)
                   value: settings://notification_history
               custom_value: true
         button_1:
-          name: Action Button 1 Text
-          description: 'The text used on the first Action button at the bottom of the notification. Set the URL below. (Default is "View Clip")'
-          default: "View Clip"
+          name: Текст кнопки действия 1
+          description: 'Текст первой кнопки действия внизу уведомления. URL задаётся ниже. (По умолчанию: "Открыть клип")'
+          default: "Открыть клип"
         url_1:
-          name: Action Button 1 URL
-          description: Customise what happens when you press the first Action Button. Select from one of the preconfigured options or enter your own custom URL. When sending to one selected mobile app device, Frigate clip links are auto-adjusted for Android or iOS. When using Notify All Devices or a notification group that includes iOS devices, choose View Clip (iOS) for clip playback on iPhone/iPad.
+          name: URL кнопки действия 1
+          description: Настройте, что происходит при нажатии первой кнопки действия. Выберите один из готовых вариантов или введите свой URL. При отправке на одно выбранное мобильное устройство ссылки на клипы Frigate автоматически подстраиваются под Android или iOS. При использовании "Уведомлять все устройства" или группы уведомлений с устройствами iOS выбирайте "Открыть клип (iOS)" для воспроизведения клипа на iPhone/iPad.
           default: "{{base_url}}/api/frigate{{client_id}}/notifications/{{id}}/clip.mp4"
           selector:
             select:
               options:
-                - label: Silence New Notifications
+                - label: Отключить новые уведомления
                   value: silence-{{ this.entity_id if this is defined and this.entity_id is defined else '' }}
-                - label: View Clip
+                - label: Открыть клип
                   value: "{{base_url}}/api/frigate{{client_id}}/notifications/{{id}}/clip.mp4"
-                - label: View Clip (iOS)
+                - label: Открыть клип (iOS)
                   value: "{{base_url}}/api/frigate{{client_id}}/notifications/{{id}}/master.m3u8"
-                - label: View GIF
+                - label: Открыть GIF
                   value: "{{base_url}}/api/frigate{{client_id}}/notifications/{{review_id}}/review_preview.gif"
-                - label: View Snapshot
+                - label: Открыть снимок
                   value: "{{base_url}}/api/frigate{{client_id}}/notifications/{{id}}/snapshot.jpg"
-                - label: View Stream
+                - label: Открыть поток
                   value: "{{base_url}}/api/camera_proxy_stream/camera.{{ camera | default('') | lower | replace('-','_') }}?token={{ state_attr('camera.' ~ (camera | default('')), 'access_token') }}"
-                - label: Open Home Assistant (web)
+                - label: Открыть Home Assistant (web)
                   value: "{{base_url}}/lovelace"
-                - label: Open Home Assistant (app)
+                - label: Открыть Home Assistant (app)
                   value: /lovelace
-                - label: Open Frigate
+                - label: Открыть Frigate
                   value: /ccab4aaf_frigate/ingress
-                - label: Open Frigate (Full Access)
+                - label: Открыть Frigate (полный доступ)
                   value: /ccab4aaf_frigate-fa/ingress
-                - label: Open Frigate (proxy)
+                - label: Открыть Frigate (proxy)
                   value: /ccab4aaf_frigate-proxy/ingress
-                - label: View Stream (Frigate Ingress)
+                - label: Открыть поток (Frigate Ingress)
                   value: /frigate?index=%23{{camera}}
-                - label: View Event (Frigate Ingress)
+                - label: Открыть событие (Frigate Ingress)
                   value: /frigate?index=review?id={{review_id}}
-                - label: Open Reolink App (Android)
+                - label: Открыть Reolink App (Android)
                   value: app://com.mcu.reolink
-                - label: Custom Action (Manual Trigger)
+                - label: Пользовательское действие (ручной запуск)
                   value: custom-{{ this.entity_id if this is defined and this.entity_id is defined else '' }}
               custom_value: true
         icon_1:
-          name: Action Button 1 icon - iOS Only
-          description: Customise the Icon on the first Action Button. Only the iOS SFSymbols library is supported, not mdi:icons. e.g., sfsymbols:bell
+          name: Иконка кнопки действия 1 - только iOS
+          description: Настройка иконки первой кнопки действия. Поддерживается только библиотека iOS SFSymbols, а не `mdi:icons`. Например: `sfsymbols:bell`
           default: ""
         button_2:
-          name: Action Button 2 Text
-          description: "The text used on the second Action button at the bottom of the notification. Set the URL below."
-          default: "View Snapshot"
+          name: Текст кнопки действия 2
+          description: "Текст второй кнопки действия внизу уведомления. URL задаётся ниже."
+          default: "Открыть снимок"
         url_2:
-          name: Action Button 2 URL
-          description: Customise what happens when you press the second Action Button. Select from one of the preconfigured options or enter your own custom URL.
+          name: URL кнопки действия 2
+          description: Настройте, что происходит при нажатии второй кнопки действия. Выберите один из готовых вариантов или введите свой URL.
           default: "{{base_url}}/api/frigate{{client_id}}/notifications/{{id}}/snapshot.jpg"
           selector:
             select:
               options:
-                - label: Silence New Notifications
+                - label: Отключить новые уведомления
                   value: silence-{{ this.entity_id if this is defined and this.entity_id is defined else '' }}
-                - label: View Clip
+                - label: Открыть клип
                   value: "{{base_url}}/api/frigate{{client_id}}/notifications/{{id}}/clip.mp4"
-                - label: View Clip (iOS)
+                - label: Открыть клип (iOS)
                   value: "{{base_url}}/api/frigate{{client_id}}/notifications/{{id}}/master.m3u8"
-                - label: View Snapshot
+                - label: Открыть снимок
                   value: "{{base_url}}/api/frigate{{client_id}}/notifications/{{id}}/snapshot.jpg"
-                - label: View Stream
+                - label: Открыть поток
                   value: "{{base_url}}/api/camera_proxy_stream/camera.{{ camera | default('') | lower | replace('-','_') }}?token={{ state_attr('camera.' ~ (camera | default('')), 'access_token') }}"
                 - label: Open Home Assistant (web)
                   value: "{{base_url}}/lovelace"
@@ -934,39 +934,39 @@ blueprint:
                   value: /ccab4aaf_frigate-fa/ingress
                 - label: Open Frigate (proxy)
                   value: /ccab4aaf_frigate-proxy/ingress
-                - label: View Stream (Frigate Ingress)
+                - label: Открыть поток (Frigate Ingress)
                   value: /frigate?index=%23{{camera}}
-                - label: View Event (Frigate Ingress)
+                - label: Открыть событие (Frigate Ingress)
                   value: /frigate?index=review?id={{review_id}}
                 - label: Open Reolink App (Android)
                   value: app://com.mcu.reolink
-                - label: Custom Action (Manual Trigger)
+                - label: Пользовательское действие (ручной запуск)
                   value: custom-{{ this.entity_id if this is defined and this.entity_id is defined else '' }}
               custom_value: true
         icon_2:
-          name: Action Button 2 icon - iOS Only
-          description: Customise the Icon on the second Action Button. Only the iOS SFSymbols library is supported, not mdi:icons. e.g., sfsymbols:bell
+          name: Иконка кнопки действия 2 - только iOS
+          description: Настройка иконки второй кнопки действия. Поддерживается только библиотека iOS SFSymbols, а не `mdi:icons`. Например: `sfsymbols:bell`
           default: ""
         button_3:
-          name: Action Button 3 Text
-          description: "The text used on the third Action button at the bottom of the notification. Set the URL below."
-          default: "Silence New Notifications"
+          name: Текст кнопки действия 3
+          description: "Текст третьей кнопки действия внизу уведомления. URL задаётся ниже."
+          default: "Отключить новые уведомления"
         url_3:
-          name: Action Button 3 URL
-          description: Customise what happens when you press the third Action Button. Select from one of the preconfigured options or enter your own custom URL.
+          name: URL кнопки действия 3
+          description: Настройте, что происходит при нажатии третьей кнопки действия. Выберите один из готовых вариантов или введите свой URL.
           default: silence-{{ this.entity_id if this is defined and this.entity_id is defined else '' }}
           selector:
             select:
               options:
                 - label: Silence New Notifications
                   value: silence-{{ this.entity_id if this is defined and this.entity_id is defined else '' }}
-                - label: View Clip
+                - label: Открыть клип
                   value: "{{base_url}}/api/frigate{{client_id}}/notifications/{{id}}/clip.mp4"
-                - label: View Clip (iOS)
+                - label: Открыть клип (iOS)
                   value: "{{base_url}}/api/frigate{{client_id}}/notifications/{{id}}/master.m3u8"
-                - label: View Snapshot
+                - label: Открыть снимок
                   value: "{{base_url}}/api/frigate{{client_id}}/notifications/{{id}}/snapshot.jpg"
-                - label: View Stream
+                - label: Открыть поток
                   value: "{{base_url}}/api/camera_proxy_stream/camera.{{ camera | default('') | lower | replace('-','_') }}?token={{ state_attr('camera.' ~ (camera | default('')), 'access_token') }}"
                 - label: Open Home Assistant (web)
                   value: "{{base_url}}/lovelace"
@@ -978,9 +978,9 @@ blueprint:
                   value: /ccab4aaf_frigate-fa/ingress
                 - label: Open Frigate (proxy)
                   value: /ccab4aaf_frigate-proxy/ingress
-                - label: View Stream (Frigate Ingress)
+                - label: Открыть поток (Frigate Ingress)
                   value: /frigate?index=%23{{camera}}
-                - label: View Event (Frigate Ingress)
+                - label: Открыть событие (Frigate Ingress)
                   value: /frigate?index=review?id={{review_id}}
                 - label: Open Reolink App (Android)
                   value: app://com.mcu.reolink
@@ -988,48 +988,48 @@ blueprint:
                   value: custom-{{ this.entity_id if this is defined and this.entity_id is defined else '' }}
               custom_value: true
         icon_3:
-          name: Action Button 3 icon - iOS Only
-          description: Customise the Icon on the third Action Button. Only the iOS SFSymbols library is supported, not mdi:icons. e.g., sfsymbols:bell
+          name: Иконка кнопки действия 3 - только iOS
+          description: Настройка иконки третьей кнопки действия. Поддерживается только библиотека iOS SFSymbols, а не `mdi:icons`. Например: `sfsymbols:bell`
           default: ""
         custom_action_manual:
-          name: Custom Action (Manual Trigger)
-          description: Customisable action that you can trigger with the Custom Action buttons in the notification. Select Custom Action on any Action Button above.
+          name: Пользовательское действие (ручной запуск)
+          description: Настраиваемое действие, которое можно вызвать кнопками "Пользовательское действие" в уведомлении. Выберите "Пользовательское действие" для любой из кнопок выше.
           selector:
             action: {}
           default: []
         custom_action_auto:
-          name: Custom Action (Auto Trigger)
-          description: Customisable action that will trigger on the initial notification (subject to all other notification conditions).
+          name: Пользовательское действие (автозапуск)
+          description: Настраиваемое действие, которое будет запускаться при первом уведомлении (с учётом всех остальных условий уведомлений).
           selector:
             action: {}
           default: []
         custom_action_auto_multi:
-          name: Custom Action (Auto Trigger in Loop)
-          description: Customisable action that will trigger on all subsequent notifications (subject to all other notification conditions). If you want it to also trigger on the initial notification, you must enter it in both input fields.
+          name: Пользовательское действие (автозапуск в цикле)
+          description: Настраиваемое действие, которое будет запускаться при всех последующих уведомлениях (с учётом всех остальных условий уведомлений). Если нужно запускать его и при первом уведомлении, укажите его в обоих полях.
           selector:
             action: {}
           default: []
     tv_notifications:
       name: |
-        # TV Notifications
-      description: These are TV Notification Options
+        # Уведомления на ТВ
+      description: Параметры уведомлений для ТВ
       icon: mdi:television
       collapsed: true
       input:
         tv:
-          name: TV Notification (Optional)
+          name: Уведомление на ТВ (необязательно)
           description: |
-            Set to true if you are notifying an Android/Fire TV
-            Can also be used to prioritise snapshots on the TV over Android mobile apps when notifying a mixed device group.
-            Base URL must be set
+            Установите `true`, если отправляете уведомления на Android/Fire TV.
+            Также можно использовать, чтобы отдавать приоритет снимкам на ТВ, а не в мобильных приложениях Android, при уведомлении смешанной группы устройств.
+            Base URL должен быть задан.
 
-            The below settings are for TV notifications only
+            Параметры ниже относятся только к ТВ-уведомлениям
           default: false
           selector:
             boolean:
         tv_position:
-          name: TV Notification Position (Optional)
-          description: Set the position of the notification on your TV
+          name: Положение уведомления на ТВ (необязательно)
+          description: Задаёт положение уведомления на телевизоре
           default: center
           selector:
             select:
@@ -1041,8 +1041,8 @@ blueprint:
                 - top-left
                 - center
         tv_size:
-          name: TV Notification Size (Optional)
-          description: Set the size of the notification on your TV.
+          name: Размер уведомления на ТВ (необязательно)
+          description: Задаёт размер уведомления на телевизоре.
           default: large
           selector:
             select:
@@ -1053,8 +1053,8 @@ blueprint:
                 - large
                 - max
         tv_duration:
-          name: TV Notification Duration (Optional)
-          description: The duration (in seconds) that the notification will display on your TV.
+          name: Длительность уведомления на ТВ (необязательно)
+          description: Время, в течение которого уведомление будет отображаться на телевизоре, в секундах.
           default: 10
           selector:
             number:
@@ -1062,8 +1062,8 @@ blueprint:
               min: 0
               unit_of_measurement: seconds
         tv_transparency:
-          name: TV notification Transparency (Optional)
-          description: Set the transparency of the notification on your TV.
+          name: Прозрачность уведомления на ТВ (необязательно)
+          description: Задаёт прозрачность уведомления на телевизоре.
           default: 0%
           selector:
             select:
@@ -1075,27 +1075,27 @@ blueprint:
                 - 75%
                 - 100%
         tv_interrupt:
-          name: TV Notification Interrupt (Optional)
-          description: "If set to true the notification is interactive and can be dismissed or selected to display more details. Depending on the running app (e.g., Netflix), this may stop playback."
+          name: Интерактивность уведомления на ТВ (необязательно)
+          description: "Если установлено `true`, уведомление станет интерактивным: его можно будет закрыть или выбрать для просмотра дополнительных сведений. В зависимости от запущенного приложения (например, Netflix) это может остановить воспроизведение."
           default: false
           selector:
             boolean:
     debug:
       name: |
-        # DEBUG
-      description: These are DEBUG Options
+        # ОТЛАДКА
+      description: Параметры отладки
       icon: mdi:bug
       collapsed: true
       input:
         debug:
-          name: Debug
-          description: Enable to send debug messages to the home assistant logbook.
+          name: Отладка
+          description: Включите, чтобы отправлять отладочные сообщения в журнал Home Assistant.
           default: false
           selector:
             boolean:
         redacted:
-          name: Redact Base URL
-          description: Hides the Base URL in the debug output for easier sharing. Does not hide it from other parts of the trace.
+          name: Скрывать Base URL
+          description: Скрывает Base URL в отладочном выводе, чтобы им было проще делиться. В остальных частях трассировки URL не скрывается.
           default: true
           selector:
             boolean:
