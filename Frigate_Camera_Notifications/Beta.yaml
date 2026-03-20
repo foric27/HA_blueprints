@@ -901,7 +901,7 @@ blueprint:
               custom_value: true
         icon_1:
           name: Иконка кнопки действия 1 - только iOS
-          description: Настройка иконки первой кнопки действия. Поддерживается только библиотека iOS SFSymbols, а не `mdi:icons`. Например: `sfsymbols:bell`
+          description: "Настройка иконки первой кнопки действия. Поддерживается только библиотека iOS SFSymbols, а не `mdi:icons`. Например: `sfsymbols:bell`"
           default: ""
         button_2:
           name: Текст кнопки действия 2
@@ -945,7 +945,7 @@ blueprint:
               custom_value: true
         icon_2:
           name: Иконка кнопки действия 2 - только iOS
-          description: Настройка иконки второй кнопки действия. Поддерживается только библиотека iOS SFSymbols, а не `mdi:icons`. Например: `sfsymbols:bell`
+          description: "Настройка иконки второй кнопки действия. Поддерживается только библиотека iOS SFSymbols, а не `mdi:icons`. Например: `sfsymbols:bell`"
           default: ""
         button_3:
           name: Текст кнопки действия 3
@@ -958,7 +958,7 @@ blueprint:
           selector:
             select:
               options:
-                - label: Silence New Notifications
+                - label: Отключить новые уведомления
                   value: silence-{{ this.entity_id if this is defined and this.entity_id is defined else '' }}
                 - label: Открыть клип
                   value: "{{base_url}}/api/frigate{{client_id}}/notifications/{{id}}/clip.mp4"
@@ -989,7 +989,7 @@ blueprint:
               custom_value: true
         icon_3:
           name: Иконка кнопки действия 3 - только iOS
-          description: Настройка иконки третьей кнопки действия. Поддерживается только библиотека iOS SFSymbols, а не `mdi:icons`. Например: `sfsymbols:bell`
+          description: "Настройка иконки третьей кнопки действия. Поддерживается только библиотека iOS SFSymbols, а не `mdi:icons`. Например: `sfsymbols:bell`"
           default: ""
         custom_action_manual:
           name: Пользовательское действие (ручной запуск)
