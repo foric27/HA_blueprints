@@ -1,67 +1,73 @@
-## Frigate Notifications
+## Уведомления Frigate
 
-This blueprint will send a notification to your device when a Frigate event for the selected camera is fired. The notification will initially include the thumbnail of the detection, but include an actionable notification allowing you to view the clip and snapshot.
+Этот блюпринт отправляет уведомление на ваше устройство, когда для выбранной камеры происходит событие Frigate. В первом уведомлении будет миниатюра обнаружения, а также интерактивное уведомление, позволяющее открыть клип и снимок.
 
-With this blueprint, you may send the notification to multiple devices by leaving "Device" blank and instead use a [notification group][1].
+С этим блюпринтом вы можете отправлять уведомления сразу на несколько устройств, оставив поле `Device` пустым и используя вместо него [группу уведомлений][1].
 
-### STABLE 
-[![Import blueprint](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FSgtBatten/HA_blueprints/blob/main/Frigate%20Camera%20Notifications/Stable)
+### STABLE
+[![Import blueprint](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https://raw.githubusercontent.com/foric27/HA_blueprints/main/Frigate_Camera_Notifications/Stable.yaml)
 
 ### BETA
-[![Import blueprint](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FSgtBatten/HA_blueprints/blob/main/Frigate%20Camera%20Notifications/Beta)
+[![Import blueprint](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https://raw.githubusercontent.com/foric27/HA_blueprints/main/Frigate_Camera_Notifications/Beta.yaml)
 
-### Software Version Requirements
+### Требования к версиям ПО
 
-- Minimum Home Assistant Version: 2024.11
-- Minimum Frigate Version: 0.14
-- Minimum Frigate Integration Version: 5.7.0
-  - “Enable the unauthenticated notification event proxy” must be ticked during setup
-- An MQTT broker connected to home assistant and frigate.
-- Minimum iOS Version: 15.0
+- Минимальная версия Home Assistant: 2024.11
+- Минимальная версия Frigate: 0.14
+- Минимальная версия интеграции Frigate: 5.7.0
+  - Во время настройки должна быть включена опция `Enable the unauthenticated notification event proxy`
+- MQTT-брокер, подключённый к Home Assistant и Frigate.
+- Минимальная версия iOS: 15.0
 
-### Required entities:
+### Обязательные сущности
 
-- [Frigate Camera Name](https://github.com/SgtBatten/HA_blueprints/blob/main/Frigate%20Camera%20Notifications/Guide:%20Configuration%20Options.md#frigate-camera)
-- [Mobile App Device **or** the name of a Notification Group or TV](https://github.com/SgtBatten/HA_blueprints/blob/main/Frigate%20Camera%20Notifications/Guide:%20Configuration%20Options.md#notify-device-and-notify-grouptv)
+- [Камера Frigate](./Guide%20-%20Configuration%20Options.md)
+- [Устройство мобильного приложения **или** имя группы уведомлений/ТВ](./Guide%20-%20Configuration%20Options.md)
 
-### Features
-    
-- Easily select one or more [camera entities](https://github.com/SgtBatten/HA_blueprints/blob/main/Frigate_Camera_Notifications/Guide:%20Configuration%20Options.md#frigate-camera) or [mobile device](https://github.com/SgtBatten/HA_blueprints/blob/main/Frigate_Camera_Notifications/Guide:%20Configuration%20Options.md#mobile-device) using a drop down menu.
-- Send notifications to
-  - an Android or iOS mobile device,
-  - an Android TV using https://www.home-assistant.io/integrations/nfandroidtv/
-  - a [group](https://github.com/SgtBatten/HA_blueprints/blob/main/Frigate_Camera_Notifications/Guide:%20Configuration%20Options.md#notification-group-or-androidfire-tv) containing any combination of the above.
-- Configure the [title](https://github.com/SgtBatten/HA_blueprints/blob/main/Frigate_Camera_Notifications/Guide:%20Configuration%20Options.md#title) and [message](https://github.com/SgtBatten/HA_blueprints/blob/main/Frigate_Camera_Notifications/Guide:%20Configuration%20Options.md#message) of the notification.
-- Include a thumbnail, snapshot, GIF or video of the event with bounding box and crop options for images.
-- Dynamically handle things like object type, zones and face detection from doubletake.
-- Automatically handle some common errors like case matching and bad urls etc.
-- Optionally send the notification as a [critical alert](https://github.com/SgtBatten/HA_blueprints/blob/main/Frigate_Camera_Notifications/Guide:%20Configuration%20Options.md#critical).
-- Optionally limit the playing of audio for secondary notification updates, and on IOS, customise the sound. [(Alert Once)](https://github.com/SgtBatten/HA_blueprints/blob/main/Frigate_Camera_Notifications/Guide:%20Configuration%20Options.md#alert-once)
-- Customise the notification [colour](https://github.com/SgtBatten/HA_blueprints/blob/main/Frigate_Camera_Notifications/Guide:%20Configuration%20Options.md#colour) and [icon](https://github.com/SgtBatten/HA_blueprints/blob/main/Frigate_Camera_Notifications/Guide:%20Configuration%20Options.md#icon).
+### Возможности
 
-#### Filters
-- Specify which zones to be notified about. [(Zone Filter)](https://github.com/SgtBatten/HA_blueprints/blob/main/Frigate_Camera_Notifications/Guide:%20Configuration%20Options.md#zone-filter)
-        - Choose between enforcing all required zones simultaneously or any one zone. ([Multi Zone])(https://github.com/SgtBatten/HA_blueprints/blob/main/Frigate_Camera_Notifications/Guide:%20Configuration%20Options.md#multi-zone)
-        - Choose to enforce zones in a specific order (e.g arriving but not leaving)
-- Specify what type of [objects][3] to be notified about. [(Object Filter)](https://github.com/SgtBatten/HA_blueprints/blob/main/Frigate_Camera_Notifications/Guide:%20Configuration%20Options.md#object-filter)
-- Disable notifications if a presence entity or group is "home". [(Presence Filter)](https://github.com/SgtBatten/HA_blueprints/blob/main/Frigate_Camera_Notifications/Guide:%20Configuration%20Options.md#presence-filter)
-- Limit notifications based on the state of another entity. [(State Filter)](https://github.com/SgtBatten/HA_blueprints/blob/main/Frigate_Camera_Notifications/Guide:%20Configuration%20Options.md#state-filter)
-- Limit notifications to certain hours of the day. [(Time Filter)](https://github.com/SgtBatten/HA_blueprints/blob/main/Frigate_Camera_Notifications/Guide:%20Configuration%20Options.md#zone-filter)
-- Configure a [cooldown](https://github.com/SgtBatten/HA_blueprints/blob/main/Frigate_Camera_Notifications/Guide:%20Configuration%20Options.md#cooldown) for the camera to reduce the number of notifications when back-to-back events occur.
-- [Silence new notifications](https://github.com/SgtBatten/HA_blueprints/blob/main/Frigate_Camera_Notifications/Guide:%20Configuration%20Options.md#silence-timer) for a defined amount of time. This is helpful in situations where you know you will be triggering detections for an extended period of time. i.e. kids playing outside.
-- Set a [loitering timer](https://github.com/SgtBatten/HA_blueprints/blob/main/Frigate_Camera_Notifications/Guide:%20Configuration%20Options.md#loitering) to notify you of stationary objects that remain for a set period of time.
-- Custom Template Filters.
+- Удобный выбор одной или нескольких [камер](./Guide%20-%20Configuration%20Options.md) или [мобильного устройства](./Guide%20-%20Configuration%20Options.md) из выпадающего списка.
+- Отправка уведомлений:
+  - на мобильное устройство Android или iOS;
+  - на Android TV через [nfandroidtv](https://www.home-assistant.io/integrations/nfandroidtv/);
+  - в [группу](./Guide%20-%20Configuration%20Options.md), содержащую любую комбинацию этих устройств.
+- Настройка [заголовка](./Guide%20-%20Configuration%20Options.md) и [текста](./Guide%20-%20Configuration%20Options.md) уведомления.
+- Добавление миниатюры, снимка, GIF или видео события с рамкой объекта и обрезкой для изображений.
+- Динамическая обработка типа объекта, зон и распознавания лиц через Double Take.
+- Автоматическая обработка типичных ошибок вроде несовпадения регистра или неверных URL.
+- Возможность отправлять уведомление как [критическое](./Guide%20-%20Configuration%20Options.md).
+- Возможность ограничить воспроизведение звука для повторных обновлений уведомления и настроить звук на iOS. [Alert Once](./Guide%20-%20Configuration%20Options.md)
+- Настройка [цвета](./Guide%20-%20Configuration%20Options.md) и [иконки](./Guide%20-%20Configuration%20Options.md) уведомления.
 
-#### Actions
-- Configure what happens when you tap the notification [(Tap Action)](https://github.com/SgtBatten/HA_blueprints/blob/main/Frigate_Camera_Notifications/Guide:%20Configuration%20Options.md#tap-action)
-- Configure 3 [action buttons](https://github.com/SgtBatten/HA_blueprints/blob/main/Frigate_Camera_Notifications/Guide:%20Configuration%20Options.md#action-buttons) to open almost anything (defaults are: View Clip, View Snapshot and Silence New Notifications)
-- Configure the size, transparency, position and duration of [TV notifications](https://github.com/SgtBatten/HA_blueprints/blob/main/Frigate_Camera_Notifications/Guide:%20Configuration%20Options.md#tv-options).
+#### Фильтры
 
-#### More
-- Debug option to help [troubleshooting](https://github.com/SgtBatten/HA_blueprints/blob/main/Frigate_Camera_Notifications/Guide:%20Configuration%20Options.md#troubleshooting) and the ability to redact your Base URL from the debug output. 
-- Support for multiple Frigate instances by specifying the [ClientID](https://github.com/SgtBatten/HA_blueprints/blob/main/Frigate_Camera_Notifications/Guide:%20Configuration%20Options.md#client-id) and [MQTT topic](https://github.com/SgtBatten/HA_blueprints/blob/main/Frigate_Camera_Notifications/Guide:%20Configuration%20Options.md#mqtt-topic)
-- Custom [sounds](https://github.com/SgtBatten/HA_blueprints/blob/main/Frigate_Camera_Notifications/Guide:%20Configuration%20Options.md#sound-ios) on IOS
-- Optionally send a [live view](https://github.com/SgtBatten/HA_blueprints/blob/main/Frigate_Camera_Notifications/Guide:%20Configuration%20Options.md#live-view-ios) to IOS.
-- Configure custom [notification channels](https://github.com/SgtBatten/HA_blueprints/blob/main/Frigate_Camera_Notifications/Guide:%20Configuration%20Options.md#channel-android) on Android.
-- Android Sticky  options as per https://community.home-assistant.io/t/frigate-mobile-app-notifications/311091/1043
-- Android Auto
+- Указание зон, о которых нужно уведомлять. [Zone Filter](./Guide%20-%20Configuration%20Options.md)
+- Выбор между обязательным входом во все зоны или в любую одну. [Multi Zone](./Guide%20-%20Configuration%20Options.md)
+- Возможность требовать определённый порядок прохождения зон.
+- Указание типа [объектов][3], о которых нужно уведомлять. [Object Filter](./Guide%20-%20Configuration%20Options.md)
+- Отключение уведомлений, если сущность присутствия или группа находится в состоянии `home`. [Presence Filter](./Guide%20-%20Configuration%20Options.md)
+- Ограничение уведомлений по состоянию другой сущности. [State Filter](./Guide%20-%20Configuration%20Options.md)
+- Ограничение уведомлений по времени суток. [Time Filter](./Guide%20-%20Configuration%20Options.md)
+- Настройка [cooldown](./Guide%20-%20Configuration%20Options.md) для камеры, чтобы уменьшить число уведомлений при частых событиях подряд.
+- Возможность [временно отключить новые уведомления](./Guide%20-%20Configuration%20Options.md) на заданный период. Полезно, если вы знаете, что сами будете долго вызывать срабатывания, например когда дети играют на улице.
+- Настройка [таймера loitering](./Guide%20-%20Configuration%20Options.md), чтобы получать уведомление о неподвижных объектах, остающихся в кадре заданное время.
+- Пользовательские шаблонные фильтры.
+
+#### Действия
+
+- Настройка действия при нажатии на уведомление. [Tap Action](./Guide%20-%20Configuration%20Options.md)
+- Настройка 3 [кнопок действий](./Guide%20-%20Configuration%20Options.md), которые могут открывать почти что угодно. По умолчанию это: открыть клип, открыть снимок и отключить новые уведомления.
+- Настройка размера, прозрачности, позиции и длительности [уведомлений на ТВ](./Guide%20-%20Configuration%20Options.md).
+
+#### Дополнительно
+
+- Режим отладки для [диагностики](./Guide%20-%20Configuration%20Options.md) и возможность скрыть базовый URL в отладочном выводе.
+- Поддержка нескольких экземпляров Frigate через [Client ID](./Guide%20-%20Configuration%20Options.md) и [MQTT topic](./Guide%20-%20Configuration%20Options.md).
+- Пользовательские [звуки](./Guide%20-%20Configuration%20Options.md) на iOS.
+- Возможность отправлять [live view](./Guide%20-%20Configuration%20Options.md) на iOS.
+- Настройка пользовательских [каналов уведомлений](./Guide%20-%20Configuration%20Options.md) на Android.
+- Параметры Android Sticky, описанные в [этой теме сообщества](https://community.home-assistant.io/t/frigate-mobile-app-notifications/311091/1043).
+- Поддержка Android Auto.
+
+[1]: https://www.home-assistant.io/integrations/group/#notify-groups
+[3]: https://docs.frigate.video/configuration/objects/

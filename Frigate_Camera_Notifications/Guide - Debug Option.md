@@ -1,33 +1,30 @@
-### Debug Option
+### Параметр отладки
 
-The blueprint contains a toggle to enable some debug output. To enable it, scroll to the bottom of the automation and toggle Debug to on/true. You can also hide your Base URL from the output for easier sharing using the redacted toggle.
+В блюпринте есть переключатель, включающий отладочный вывод. Чтобы его активировать, прокрутите автоматизацию в самый низ и переведите параметр `Debug` в состояние `on/true`. Для более удобного и безопасного обмена логами вы также можете скрыть свой базовый URL через переключатель `redacted`.
 
 ![image](https://github.com/user-attachments/assets/0201a2df-5c75-422f-b237-4632521832bb)
 
+При необходимости можно увеличить количество хранимых trace, добавив этот блок в начало или конец автоматизации при редактировании в режиме YAML:
 
-Note you can increase the number of stored traces by adding this to the beginning or end of the automation while editing it in yaml mode:
-
-```
+```yaml
 trace:
   stored_traces: 40
 ```
 
+После этого, когда автоматизация сработает, вы сможете найти отладочный вывод в trace.
 
-Now, after the automation is trigger we will be able to find the debug output in the trace. 
+Сначала откройте автоматизацию и выберите `Traces` в правом верхнем углу.
 
-First go the the automation and select traces in the top right. 
+![image](https://github.com/foric27/HA_blueprints/assets/24822223/6d1eee11-a6e0-4685-84e9-da1c519d6628)
 
-![image](https://github.com/SgtBatten/HA_blueprints/assets/24822223/6d1eee11-a6e0-4685-84e9-da1c519d6628)
-
-There is a visual depiction of the trace. This is broken down in [Create a guide later post]
-There are two nodes we are interested in, they are indicated in red. The first is the output for the initial notification. The second is the output from all update loop cycles.
+Там отображается визуальная схема trace. Позже это можно будет разобрать в отдельном гайде.
+Нас интересуют два узла, они отмечены красным. Первый содержит вывод для первоначального уведомления. Второй содержит вывод для всех циклов обновления.
 
 ![image](https://github.com/user-attachments/assets/0c4ebd4a-9032-4510-9d9f-28d634e0a938)
 
+Если нажать на любой из этих узлов, вы увидите отладочный вывод, который можно прочитать или скопировать, как в примере ниже.
 
-If you click on either node, you will find the Debug output to read or copy like below.
-
-```
+```text
 Executed: September 15, 2024 at 17:05:10
 Result:
 params:
@@ -98,4 +95,3 @@ params:
   target: {}
 running_script: false
 ```
-
