@@ -1255,6 +1255,60 @@ variables:
   custom_filter: !input custom_filter
   color: !input color
   sound: !input sound
+  object_name:
+    person: "человек🙍‍♂️"
+    face: "лицо🧑"
+    car: "машина🚗"
+    motorcycle: "мотоцикл🏍️"
+    bicycle: "велосипед🚲"
+    boat: "лодка🚤"
+    license_plate: "номерной знак📛"
+    dog: "собака🐶"
+    cat: "кот🐱"
+    deer: "олень🦌"
+    horse: "лошадь🐴"
+    bird: "птица🐦"
+    raccoon: "енот🦝"
+    fox: "лиса🦊"
+    bear: "медведь🐻"
+    cow: "корова🐄"
+    squirrel: "белка🐿️"
+    goat: "коза🐐"
+    rabbit: "кролик🐇"
+    package: "посылка📦"
+    waste_bin: "мусорный бак🗑️"
+    bbq_grill: "гриль🍖"
+    robot_lawnmower: "газонокосилка-робот🤖"
+    umbrella: "зонт☂️"
+  audio_object:
+    bark: "Лай собаки 🐶"
+    fire_alarm: "Пожарная сирена 🚨"
+    scream: "Крик 😱"
+    speech: "Речь 🗣️"
+    yell: "Крик (громкий) 📢"
+    cat_roar: "Рёв кота 🐱"
+  translated_label: >-
+    {% macro translate_label_item(value) -%}
+      {% set key = (value | string | lower) %}
+      {% if key in object_name %}
+        {{ object_name[key] }}
+      {% elif key in audio_object %}
+        {{ audio_object[key] }}
+      {% else %}
+        {{ value | string | replace('_', ' ') | title }}
+      {% endif %}
+    {%- endmacro %}
+    {% if label is string %}
+      {{ translate_label_item(label) }}
+    {% elif label is sequence and label is not string %}
+      {% set ns = namespace(items=[]) %}
+      {% for item in label %}
+        {% set ns.items = ns.items + [translate_label_item(item)] %}
+      {% endfor %}
+      {{ ns.items | join(', ') }}
+    {% else %}
+      {{ label }}
+    {% endif %}
   input_volume: !input volume
   volume: "{{ (1 * input_volume|int(100))/100 }}"
   sticky: !input sticky
@@ -1947,18 +2001,21 @@ actions:
                         {% set data.labels = data.labels + [obj] %}
                       {% endif %}
                     {% endfor %} {% set data.labels = data.labels + sub_labels %} 
-                    {{ data.labels | unique | list | sort | join(", ") | title }}
+                    {% set label = data.labels | unique | list | sort %}
+                    {{ translated_label }}
                   {% else %}
                     {% for obj in objects %}
                       {% if "-verified" in obj %}
                       {% else %}
                         {% set data.labels = data.labels + [obj] %}
                       {% endif %}
-                    {% endfor %} {% set data.labels = data.labels + sub_labels %} 
-                    {{ data.labels | unique | list | sort | join(", ") | title }}
+                    {% endfor %} {% set data.labels = data.labels + sub_labels %}
+                    {% set label = data.labels | unique | list | sort %}
+                    {{ translated_label }}
                   {% endif %}
                 {% else %}
-                  {{ objects | list | join(", ") | title }}
+                  {% set label = objects | list %}
+                  {{ translated_label }}
                 {% endif %}
 
               # Dynamic Variables per event
@@ -2444,18 +2501,21 @@ actions:
                               {% set data.labels = data.labels + [obj] %}
                             {% endif %}
                           {% endfor %} {% set data.labels = data.labels + sub_labels %} 
-                          {{ data.labels | unique | list | sort | join(", ") | title }}
+                          {% set label = data.labels | unique | list | sort %}
+                          {{ translated_label }}
                         {% else %}
                           {% for obj in objects %}
                             {% if "-verified" in obj %}
                             {% else %}
                               {% set data.labels = data.labels + [obj] %}
                             {% endif %}
-                          {% endfor %} {% set data.labels = data.labels + sub_labels %} 
-                          {{ data.labels | unique | list | sort | join(", ") | title }}
+                          {% endfor %} {% set data.labels = data.labels + sub_labels %}
+                          {% set label = data.labels | unique | list | sort %}
+                          {{ translated_label }}
                         {% endif %}
                       {% else %}
-                        {{objects | list | join(', ') | title}}
+                        {% set label = objects | list %}
+                        {{ translated_label }}
                       {% endif %}
                     # import the title and message again so any sublabel, object or zone changes are captured.
                     title: !input title
