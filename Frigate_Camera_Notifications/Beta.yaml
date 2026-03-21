@@ -1287,28 +1287,6 @@ variables:
     speech: "Речь 🗣️"
     yell: "Крик (громкий) 📢"
     cat_roar: "Рёв кота 🐱"
-  translated_label: >-
-    {% macro translate_label_item(value) -%}
-      {% set key = (value | string | lower) %}
-      {% if key in object_name %}
-        {{ object_name[key] }}
-      {% elif key in audio_object %}
-        {{ audio_object[key] }}
-      {% else %}
-        {{ value | string | replace('_', ' ') | title }}
-      {% endif %}
-    {%- endmacro %}
-    {% if label is string %}
-      {{ translate_label_item(label) }}
-    {% elif label is sequence and label is not string %}
-      {% set ns = namespace(items=[]) %}
-      {% for item in label %}
-        {% set ns.items = ns.items + [translate_label_item(item)] %}
-      {% endfor %}
-      {{ ns.items | join(', ') }}
-    {% else %}
-      {{ label }}
-    {% endif %}
   input_volume: !input volume
   volume: "{{ (1 * input_volume|int(100))/100 }}"
   sticky: !input sticky
@@ -2000,9 +1978,19 @@ actions:
                       {% else %}
                         {% set data.labels = data.labels + [obj] %}
                       {% endif %}
-                    {% endfor %} {% set data.labels = data.labels + sub_labels %} 
-                    {% set label = data.labels | unique | list | sort %}
-                    {{ translated_label }}
+                    {% endfor %} {% set data.labels = data.labels + sub_labels %}
+                    {% set ns = namespace(items=[]) %}
+                    {% for item in data.labels | unique | list | sort %}
+                      {% set key = item | string | lower %}
+                      {% if key in object_name %}
+                        {% set ns.items = ns.items + [object_name[key]] %}
+                      {% elif key in audio_object %}
+                        {% set ns.items = ns.items + [audio_object[key]] %}
+                      {% else %}
+                        {% set ns.items = ns.items + [item | string | replace('_', ' ') | title] %}
+                      {% endif %}
+                    {% endfor %}
+                    {{ ns.items | join(', ') }}
                   {% else %}
                     {% for obj in objects %}
                       {% if "-verified" in obj %}
@@ -2010,12 +1998,32 @@ actions:
                         {% set data.labels = data.labels + [obj] %}
                       {% endif %}
                     {% endfor %} {% set data.labels = data.labels + sub_labels %}
-                    {% set label = data.labels | unique | list | sort %}
-                    {{ translated_label }}
+                    {% set ns = namespace(items=[]) %}
+                    {% for item in data.labels | unique | list | sort %}
+                      {% set key = item | string | lower %}
+                      {% if key in object_name %}
+                        {% set ns.items = ns.items + [object_name[key]] %}
+                      {% elif key in audio_object %}
+                        {% set ns.items = ns.items + [audio_object[key]] %}
+                      {% else %}
+                        {% set ns.items = ns.items + [item | string | replace('_', ' ') | title] %}
+                      {% endif %}
+                    {% endfor %}
+                    {{ ns.items | join(', ') }}
                   {% endif %}
                 {% else %}
-                  {% set label = objects | list %}
-                  {{ translated_label }}
+                  {% set ns = namespace(items=[]) %}
+                  {% for item in objects | list %}
+                    {% set key = item | string | lower %}
+                    {% if key in object_name %}
+                      {% set ns.items = ns.items + [object_name[key]] %}
+                    {% elif key in audio_object %}
+                      {% set ns.items = ns.items + [audio_object[key]] %}
+                    {% else %}
+                      {% set ns.items = ns.items + [item | string | replace('_', ' ') | title] %}
+                    {% endif %}
+                  {% endfor %}
+                  {{ ns.items | join(', ') }}
                 {% endif %}
 
               # Dynamic Variables per event
@@ -2500,9 +2508,19 @@ actions:
                             {% else %}
                               {% set data.labels = data.labels + [obj] %}
                             {% endif %}
-                          {% endfor %} {% set data.labels = data.labels + sub_labels %} 
-                          {% set label = data.labels | unique | list | sort %}
-                          {{ translated_label }}
+                          {% endfor %} {% set data.labels = data.labels + sub_labels %}
+                          {% set ns = namespace(items=[]) %}
+                          {% for item in data.labels | unique | list | sort %}
+                            {% set key = item | string | lower %}
+                            {% if key in object_name %}
+                              {% set ns.items = ns.items + [object_name[key]] %}
+                            {% elif key in audio_object %}
+                              {% set ns.items = ns.items + [audio_object[key]] %}
+                            {% else %}
+                              {% set ns.items = ns.items + [item | string | replace('_', ' ') | title] %}
+                            {% endif %}
+                          {% endfor %}
+                          {{ ns.items | join(', ') }}
                         {% else %}
                           {% for obj in objects %}
                             {% if "-verified" in obj %}
@@ -2510,12 +2528,32 @@ actions:
                               {% set data.labels = data.labels + [obj] %}
                             {% endif %}
                           {% endfor %} {% set data.labels = data.labels + sub_labels %}
-                          {% set label = data.labels | unique | list | sort %}
-                          {{ translated_label }}
+                          {% set ns = namespace(items=[]) %}
+                          {% for item in data.labels | unique | list | sort %}
+                            {% set key = item | string | lower %}
+                            {% if key in object_name %}
+                              {% set ns.items = ns.items + [object_name[key]] %}
+                            {% elif key in audio_object %}
+                              {% set ns.items = ns.items + [audio_object[key]] %}
+                            {% else %}
+                              {% set ns.items = ns.items + [item | string | replace('_', ' ') | title] %}
+                            {% endif %}
+                          {% endfor %}
+                          {{ ns.items | join(', ') }}
                         {% endif %}
                       {% else %}
-                        {% set label = objects | list %}
-                        {{ translated_label }}
+                        {% set ns = namespace(items=[]) %}
+                        {% for item in objects | list %}
+                          {% set key = item | string | lower %}
+                          {% if key in object_name %}
+                            {% set ns.items = ns.items + [object_name[key]] %}
+                          {% elif key in audio_object %}
+                            {% set ns.items = ns.items + [audio_object[key]] %}
+                          {% else %}
+                            {% set ns.items = ns.items + [item | string | replace('_', ' ') | title] %}
+                          {% endif %}
+                        {% endfor %}
+                        {{ ns.items | join(', ') }}
                       {% endif %}
                     # import the title and message again so any sublabel, object or zone changes are captured.
                     title: !input title
