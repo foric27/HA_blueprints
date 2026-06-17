@@ -1375,8 +1375,8 @@ variables:
   # Аудио
   audio: "{{ trigger_after.get('data', {}).get('audio', []) }}"
   # Фильтры на новые переменные
-  threat_filter: "{{ trigger_after.get('metadata', {}).get('potential_threat_level', 0) | int(0) >= min_threat_level | int(0) }}"
-  audio_filter_satisfied: "{{ not audio_filter | length or (audio | length > 0 and audio | select('in', audio_filter) | list | length > 0) }}"
+  threat_filter: "{{ trigger_after.get('metadata', {}).get('potential_threat_level', 0) | int(0) >= (min_threat_level | default(0) | int(0)) }}"
+  audio_filter_satisfied: "{{ not (audio_filter | default([])) | length or (audio | length > 0 and audio | select('in', audio_filter | default([])) | list | length > 0) }}"
   input_volume: !input volume
   volume: "{{ (1 * input_volume|int(100))/100 }}"
   sticky: !input sticky
