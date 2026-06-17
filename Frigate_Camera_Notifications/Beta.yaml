@@ -10,8 +10,8 @@ blueprint:
 
     ### Требования к версиям ПО
       - Минимальная версия Home Assistant: 2024.11
-      - Минимальная версия Frigate: 0.14.0
-      - Минимальная версия интеграции Frigate: 5.7.0
+      - Минимальная версия Frigate: 0.15.0
+      - Минимальная версия интеграции Frigate: 5.15.0
         - **Примечание:** во время настройки нужно включить опцию "Enable the unauthenticated notification event proxy"
       - MQTT-брокер, подключённый к Home Assistant и Frigate.
       - Минимальная версия iOS: 15.0
@@ -60,7 +60,7 @@ blueprint:
       description: |
         Отправлять уведомления через `notify.notify`, а не на одно конкретное мобильное устройство.
 
-        Если включено, этот параметр переопределяет выбор "Мобильное устройство", но "Группа уведомлений / Android/Fire TV" ниже всё равно имеет приоритет, если задана.
+        Если включено, этот параметр переопределяет и выбор "Мобильное устройство", и "Группу уведомлений / Android/Fire TV" ниже.
 
         Важно: при использовании "Уведомлять все устройства" или группы уведомлений, в которую входят устройства iOS, установите для URL действия по нажатию и всех URL кнопок с клипами вариант "Открыть клип (iOS)". Блюпринт может автоматически выбрать правильный URL клипа Frigate только при отправке на одно выбранное мобильное устройство.
       default: false
@@ -1185,7 +1185,6 @@ variables:
       {{ '' }}
     {% endif %}
   input_severity: !input review_severity
-  severity: "{{trigger.payload_json['after']['severity'] if trigger.id in ['frigate-event', 'genai-final']}}"
   type: "{{trigger.payload_json['type'] if trigger.id in ['frigate-event', 'genai-sprinter', 'genai-final']}}"
   input_base_url: !input base_url
   base_url: "{{ input_base_url.rstrip('/')}}"
@@ -1208,9 +1207,9 @@ variables:
   notify_all_devices: !input notify_all_devices
   notify_group: !input notify_group
   notify_group_target: >
-    {% if notify_all_devices and not notify_group %}
+    {% if notify_all_devices %}
       notify
-    {% else %}
+    {% elif notify_group %}
       {{ notify_group | lower | regex_replace('^notify\.', '') | replace(' ','_') }}
     {% endif %}
   selected_notify_device: !input notify_device
@@ -1233,11 +1232,11 @@ variables:
   telegram_video_service: "{{ 'telegram_bot' ~ '.send_video' }}"
   zone_only: !input zone_filter
   input_zones: !input zones
-  zones: "{{ input_zones | list | lower }}"
+  zones: "{{ input_zones | default([]) | map('lower') | list }}"
   zone_multi: !input zone_multi
   zone_order_enforced: !input zone_order_enforced
   input_labels: !input labels
-  labels: "{{ input_labels | list | lower }}"
+  labels: "{{ input_labels | default([]) | map('lower') | list }}"
   presence_entity: !input presence_filter
   disable_times: !input disable_times
   cooldown: !input cooldown
@@ -1251,7 +1250,7 @@ variables:
   state_only: !input state_filter
   input_entity: !input state_entity
   input_states: !input state_filter_states
-  states_filter: "{{ input_states | list | lower }}"
+  states_filter: "{{ input_states | default([]) | map('lower') | list }}"
   custom_filter: !input custom_filter
   color: !input color
   sound: !input sound
@@ -1332,17 +1331,17 @@ variables:
   state_satisfied: "{{ not state_only or states(input_entity)|lower in states_filter }}"
   before_zones: >
     {% if trigger.id in ['frigate-event', 'genai-final'] %}
-      {{ trigger.payload_json['before']['data']['zones'] | default([]) | list | lower }}
+      {{ trigger.payload_json['before']['data']['zones'] | default([]) | map('lower') | list }}
     {% elif trigger.id == 'genai-sprinter' %}
-      {{ trigger.payload_json.get('before_zones', []) | list | lower }}
+      {{ trigger.payload_json.get('before_zones', []) | map('lower') | list }}
     {% else %}
       {{ [] }}
     {% endif %}
   after_zones: >
     {% if trigger.id in ['frigate-event', 'genai-final'] %}
-      {{ trigger.payload_json['after']['data']['zones'] | default([]) | list | lower }}
+      {{ trigger.payload_json['after']['data']['zones'] | default([]) | map('lower') | list }}
     {% elif trigger.id == 'genai-sprinter' %}
-      {{ trigger.payload_json.get('current_zones', trigger.payload_json.get('entered_zones', trigger.payload_json.get('zones', []))) | list | lower }}
+      {{ trigger.payload_json.get('current_zones', trigger.payload_json.get('entered_zones', trigger.payload_json.get('zones', []))) | map('lower') | list }}
     {% else %}
       {{ [] }}
     {% endif %}
@@ -1453,7 +1452,7 @@ actions:
               id: "{{ trigger.payload_json['id'] }}"
               review_id: "{{ trigger.payload_json.get('review_id', trigger.payload_json['id']) }}"
               label: "{{ trigger.payload_json.get('label', 'GenAI') | replace('_', ' ') | title }}"
-              title: "Detection at {{ trigger.payload_json['camera'] | replace('_', ' ') | title }}"
+              title: "Обнаружение на {{ trigger.payload_json['camera'] | replace('_', ' ') | title }}"
               message: "{{ trigger.payload_json['description'] if genai_sprinter_description else '' }}"
               subtitle: !input subtitle
               icon: !input icon
@@ -1520,7 +1519,7 @@ actions:
                   - choose:
                       - conditions: "{{ 'gif' in attachment }}"
                         sequence:
-                          - service: "{{ telegram_animation_service }}"
+                          - action: "{{ telegram_animation_service }}"
                             data:
                               chat_id: "{{telegram_chat_id}}"
                               caption: "{{telegram_caption}}"
@@ -1529,7 +1528,7 @@ actions:
                                 - [["{{button_1}}", "{{url_1}}"], ["{{button_2}}", "{{url_2}}"]]
                                 - [["{{button_3}}", "{{url_3}}"]]
                     default:
-                      - service: "{{ telegram_photo_service }}"
+                      - action: "{{ telegram_photo_service }}"
                         data:
                           chat_id: "{{telegram_chat_id}}"
                           caption: "{{telegram_caption}}"
@@ -1715,9 +1714,9 @@ actions:
               genai_threat_level: "{{ metadata.get('potential_threat_level', 0) | int(0) }}"
               title: >-
                 {% if genai_threat_level == 2 %}
-                  Security Concern: {{ genai_title }}
+                  Потенциальная угроза: {{ genai_title }}
                 {% elif genai_threat_level == 1 %}
-                  Needs Review: {{ genai_title }}
+                  Требует проверки: {{ genai_title }}
                 {% else %}
                   {{ genai_title }}
                 {% endif %}
@@ -1790,7 +1789,7 @@ actions:
                           - choose:
                               - conditions: "{{ 'gif' in attachment }}"
                                 sequence:
-                                  - service: "{{ telegram_animation_service }}"
+                                  - action: "{{ telegram_animation_service }}"
                                     data:
                                       chat_id: "{{telegram_chat_id}}"
                                       caption: "{{telegram_caption}}"
@@ -1799,7 +1798,7 @@ actions:
                                         - [["{{button_1}}", "{{url_1}}"], ["{{button_2}}", "{{url_2}}"]]
                                         - [["{{button_3}}", "{{url_3}}"]]
                             default:
-                              - service: "{{ telegram_photo_service }}"
+                              - action: "{{ telegram_photo_service }}"
                                 data:
                                   chat_id: "{{telegram_chat_id}}"
                                   caption: "{{telegram_caption}}"
@@ -2106,7 +2105,7 @@ actions:
                   - "{{debug}}"
                 sequence:
                   - action: logbook.log
-                    data_template:
+                    data:
                       name: Frigate Notification
                       message: |
                         DEBUG: 
@@ -2215,7 +2214,7 @@ actions:
                       - choose:
                           - conditions: "{{ telegram }}"
                             sequence:
-                              - service: "{{ telegram_photo_service }}"
+                              - action: "{{ telegram_photo_service }}"
                                 data:
                                   chat_id: "{{telegram_chat_id}}"
                                   caption: "{{message}}"
@@ -2461,8 +2460,8 @@ actions:
 
                     # Zones Variables
 
-                    before_zones: "{{ event['before']['data']['zones'] | list | lower | default([]) }}"
-                    after_zones: "{{ event['after']['data']['zones'] | list | lower | default([]) }}"
+                    before_zones: "{{ event['before']['data']['zones'] | default([]) | map('lower') | list }}"
+                    after_zones: "{{ event['after']['data']['zones'] | default([]) | map('lower') | list }}"
                     # If no zones defined, or any zones have been entered
                     any_zones_entered: "{{ zones | length == 0 or ((zones | select('in', after_zones) | list | length) > 0) }}"
                     zone_single_satisfied: "{{ any_zones_entered if zone_only else true}}"
@@ -2581,7 +2580,7 @@ actions:
                         - "{{debug}}"
                       sequence:
                         - action: logbook.log
-                          data_template:
+                          data:
                             name: Frigate Notification
                             message: |
                               DEBUG (in loop):
@@ -2704,7 +2703,7 @@ actions:
                                             - "{{ event['type'] == 'end' }}"
                                             - "{{ video | length > 0 }}"
                                           sequence:
-                                            - service: "{{ telegram_video_service }}"
+                                            - action: "{{ telegram_video_service }}"
                                               data:
                                                 chat_id: "{{telegram_chat_id}}"
                                                 caption: "{{message}}"
@@ -2727,7 +2726,7 @@ actions:
                                                       ],
                                                     ]
                                       default:
-                                        - service: "{{ telegram_photo_service }}"
+                                        - action: "{{ telegram_photo_service }}"
                                           data:
                                             chat_id: "{{telegram_chat_id}}"
                                             caption: "{{message}}"
