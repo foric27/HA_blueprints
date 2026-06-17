@@ -151,6 +151,10 @@ blueprint:
                   value: "{{ label }} обнаружен(а) на камере {{ camera_name }}{{' в зоне ' if after_zones|length}}{{ after_zones | join(', ') | replace('_', ' ' ) | title }} в {{event['after']['start_time']|timestamp_custom('%H:%M')}}."
                 - label: "Уведомление дверного звонка"
                   value: "🔔 {{ label }} у {{ camera_name }}"
+                - label: "GenAI краткое описание"
+                  value: "{{ trigger_after.get('metadata', {}).get('shortSummary', label ~ ' на камере ' ~ camera_name) }}"
+                - label: "С распознанным лицом/номером"
+                  value: "{{ sub_label if sub_label else label }}{{ ' (' ~ recognized_plate ~ ')' if recognized_plate else '' }} обнаружен(а) на камере {{ camera_name }}."
               custom_value: true
         update_sub_label:
           name: Обновлять подметки (дополнительно)
@@ -1126,6 +1130,9 @@ triggers:
     payload: genai
     value_template: "{{value_json['type']}}"
     id: genai-final
+  - trigger: mqtt
+    topic: frigate/triggers
+    id: frigate-trigger
   - trigger: event
     event_type: mobile_app_notification_action
     event_data:
@@ -1286,6 +1293,47 @@ variables:
     speech: "Речь 🗣️"
     yell: "Крик (громкий) 📢"
     cat_roar: "Рёв кота 🐱"
+    glass_break: "Разбитие стекла 💥"
+    gunshot: "Выстрел 🔫"
+    baby_cry: "Детский плач 👶"
+    doorbell: "Звонок 🔔"
+    siren: "Сирена 🚨"
+    vehicle_horn: "Клаксон 📯"
+  # === Новые переменные из Frigate 0.18+ ===
+  # sub_label (распознанное лицо/номер/вид птицы)
+  sub_label: >
+    {% set sl = trigger_after.get('sub_label', '') %}
+    {% if sl is sequence and sl is not string %}
+      {{ sl | first | default('') }}
+    {% else %}
+      {{ sl | default('') }}
+    {% endif %}
+  # Распознанный номерной знак
+  recognized_plate: "{{ trigger_after.get('recognized_license_plate', '') }}"
+  plate_score: "{{ trigger_after.get('recognized_license_plate_score', 0) | float(0) }}"
+  # GenAI confidence
+  genai_confidence: >
+    {% if trigger.id in ['genai-sprinter', 'genai-final'] %}
+      {{ trigger_after.get('metadata', {}).get('confidence', 0) | float(0) }}
+    {% else %}
+      {{ 0 }}
+    {% endif %}
+  # Длительность события
+  duration: >
+    {% set start = trigger_after.get('start_time', now().timestamp()) | float(now().timestamp()) %}
+    {% set end = trigger_after.get('end_time', now().timestamp()) | float(now().timestamp()) %}
+    {{ ((end - start) | int(0)) }}
+  # Уверенность детекции
+  top_score: "{{ trigger_after.get('top_score', 0) | float(0) }}"
+  current_score: "{{ trigger_after.get('score', 0) | float(0) }}"
+  # Скорость объекта
+  object_speed: "{{ trigger_after.get('current_estimated_speed', 0) | float(0) }}"
+  object_avg_speed: "{{ trigger_after.get('average_estimated_speed', 0) | float(0) }}"
+  # Аудио
+  audio: "{{ trigger_after.get('data', {}).get('audio', []) }}"
+  # Фильтры на новые переменные
+  threat_filter: "{{ trigger_after.get('metadata', {}).get('potential_threat_level', 0) | int(0) >= min_threat_level | int(0) }}"
+  audio_filter_satisfied: "{{ not audio_filter | length or (audio | length > 0 and audio | select('in', audio_filter) | list | length > 0) }}"
   input_volume: !input volume
   volume: "{{ (1 * input_volume|int(100))/100 }}"
   sticky: !input sticky
@@ -1298,6 +1346,8 @@ variables:
   debug: !input debug
   redacted: !input redacted
   master_condition: !input master_condition
+  min_threat_level: !input min_threat_level
+  audio_filter: !input audio_filter
   # Dynamic Variables per event
   severity: >
     {% if trigger.id in ['frigate-event', 'genai-final'] %}
@@ -1346,7 +1396,7 @@ variables:
       {{ [] }}
     {% endif %}
   zone_multi_filter: "{{zone_only and zone_multi and after_zones|length and zones and zones |reject('in', after_zones) |list |length == 0 }}"
-  filters_satisfied: "{{ severity_satisfied and objects_satisfied and not initial_home and state_satisfied and custom_filter }}"
+  filters_satisfied: "{{ severity_satisfied and objects_satisfied and not initial_home and state_satisfied and threat_filter and audio_filter_satisfied and custom_filter }}"
   any_zones_entered: "{{ zones | length == 0 or ((zones | select('in', after_zones) | list | length) > 0) }}"
   zone_single_satisfied: "{{ any_zones_entered if zone_only else true }}"
   all_zones_entered: "{{ zones | length == 0 or ((zones | reject('in', after_zones) | list | length) == 0) }}"
@@ -1433,6 +1483,10 @@ actions:
               entity_id: "{{ this.entity_id }}"
             data:
               stop_actions: false
+          - action: mqtt.publish
+            data:
+              topic: "frigate/{{ camera }}/notifications/suspend"
+              payload: "{{ (now().timestamp() + silence_minutes * 60) | int }}"
           - delay:
               minutes: !input silence_timer
           - action: automation.turn_on
