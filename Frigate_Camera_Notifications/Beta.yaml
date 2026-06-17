@@ -750,6 +750,7 @@
               min: 0
               max: 2
               step: 1
+              unit_of_measurement: level
         audio_filter:
           name: Фильтр звука (необязательно)
           description: |
