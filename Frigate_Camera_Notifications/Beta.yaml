@@ -1,4 +1,4 @@
-blueprint:
+﻿blueprint:
   name: Уведомления Frigate (0.16.0.0)
   author: SgtBatten
   homeassistant:
@@ -738,6 +738,48 @@ blueprint:
                   value: "22"
                 - label: 23:00 - 23:59
                   value: "23"
+        min_threat_level:
+          name: Минимальный уровень угрозы (GenAI, необязательно)
+          description: |
+            Фильтр по уровню угрозы GenAI.
+            0 = все события, 1 = подозрительные и выше, 2 = только критические.
+            Работает только с GenAI Review Summaries.
+          default: 0
+          selector:
+            number:
+              min: 0
+              max: 2
+              step: 1
+        audio_filter:
+          name: Фильтр звука (необязательно)
+          description: |
+            Уведомлять только при обнаружении указанных типов звука.
+            Оставьте пустым для уведомлений о всех звуках.
+          default: []
+          selector:
+            select:
+              multiple: true
+              options:
+                - label: Лай собаки
+                  value: bark
+                - label: Пожарная тревога
+                  value: fire_alarm
+                - label: Крик
+                  value: scream
+                - label: Речь
+                  value: speech
+                - label: Разбитие стекла
+                  value: glass_break
+                - label: Выстрел
+                  value: gunshot
+                - label: Детский плач
+                  value: baby_cry
+                - label: Звонок
+                  value: doorbell
+                - label: Сирена
+                  value: siren
+                - label: Клаксон
+                  value: vehicle_horn
         custom_filter:
           name: Пользовательский фильтр (необязательно, дополнительно)
           description: Фильтр, который должен возвращать `true` или `false`, но при необходимости может быть шаблоном. Убедитесь, что он заключён в правильные \"кавычки\" и \{\{скобки\}\}.
